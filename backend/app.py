@@ -15,6 +15,7 @@ from parsers import parse_terminal_config
 from network_utils import print_startup_banner
 from config import Config
 from session_manager import SessionManager
+from clipboard_manager import ClipboardManager
 from security import (
     RateLimiter,
     validate_message,
@@ -98,6 +99,11 @@ class ConnectionManager:
 
         # Session management
         self.session_manager = SessionManager(session_timeout=3600)  # 1 hour
+
+        # Clipboard sync
+        self.clipboard_manager = ClipboardManager(
+            sync_interval=Config.CLIPBOARD_SYNC_INTERVAL
+        ) if Config.ENABLE_CLIPBOARD_SYNC else None
 
         # Security components
         self.rate_limiter = RateLimiter(
@@ -205,6 +211,11 @@ class ConnectionManager:
             self._log("[WS] Starting heartbeat task...")
             self.heartbeat_task = asyncio.create_task(self._heartbeat_loop())
 
+        # Start clipboard monitoring if enabled
+        if self.clipboard_manager and Config.ENABLE_CLIPBOARD_SYNC:
+            self._log("[WS] Starting clipboard sync...")
+            self.clipboard_manager.start_monitoring(self._sync_clipboard_to_remote)
+
         self._log("[WS] Connection setup complete!")
 
     def disconnect(self, websocket: WebSocket):
@@ -215,6 +226,11 @@ class ConnectionManager:
         # Clear current connection if it's the one disconnecting
         if self.current_connection == websocket:
             self.current_connection = None
+
+        # Stop clipboard monitoring if no connections
+        if not self.active_connections and self.clipboard_manager:
+            self.clipboard_manager.stop_monitoring()
+            self._log("[WS] No active connections, stopping clipboard sync")
 
         # Stop claude if no connections
         if not self.active_connections and self.claude:
@@ -308,6 +324,42 @@ class ConnectionManager:
         if self.claude and self.claude.is_alive():
             self.claude.set_window_size(rows, cols)
 
+    async def _sync_clipboard_to_remote(self, text: str):
+        """
+        Sync Mac clipboard to remote device
+
+        Args:
+            text: Clipboard content to sync
+        """
+        if not self.current_connection:
+            return
+
+        try:
+            msg = {
+                "type": "clipboard_sync",
+                "text": text
+            }
+            await self._send_json(self.current_connection, msg)
+            self._log(f"[CLIPBOARD] Synced to remote ({len(text)} chars)")
+        except Exception as e:
+            self._log(f"[CLIPBOARD] Failed to sync to remote: {e}")
+
+    async def handle_clipboard_set(self, text: str):
+        """
+        Handle clipboard content from remote device (phone)
+
+        Args:
+            text: Clipboard content from phone
+        """
+        if not self.clipboard_manager:
+            self._log("[CLIPBOARD] Clipboard sync is disabled")
+            return
+
+        try:
+            await self.clipboard_manager.set_from_remote(text)
+        except Exception as e:
+            self._log(f"[CLIPBOARD] Error setting clipboard: {e}")
+
 
 # Global connection manager
 manager = ConnectionManager()
@@ -389,6 +441,11 @@ async def websocket_endpoint(websocket: WebSocket):
             elif msg_type == "pong":
                 # Client responded to ping
                 pass
+
+            elif msg_type == "clipboard_set":
+                # Client setting Mac clipboard from phone
+                text = message.get("text", "")
+                await manager.handle_clipboard_set(text)
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)

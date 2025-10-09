@@ -36,6 +36,10 @@ class Config:
     # Claude CLI configuration
     CLAUDE_COMMAND: str = os.getenv("CLAUDE_COMMAND", "claude")
 
+    # Feature flags
+    ENABLE_CLIPBOARD_SYNC: bool = os.getenv("ENABLE_CLIPBOARD_SYNC", "true").lower() == "true"
+    CLIPBOARD_SYNC_INTERVAL: float = float(os.getenv("CLIPBOARD_SYNC_INTERVAL", "1.0"))
+
     @classmethod
     def validate(cls) -> None:
         """Validate configuration and raise if invalid."""
