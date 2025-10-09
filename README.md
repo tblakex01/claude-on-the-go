@@ -1,0 +1,206 @@
+# Claude-onTheGo
+
+> Control your Mac's `claude` CLI from your phone. Because sometimes you just want to code from the couch.
+
+Use Claude on your iPhone, Android, or any device with a browser - while your Mac does the heavy lifting. No cloud sync, no data leaks, just your local network keeping things fast and private.
+
+## What Is This?
+
+Claude-onTheGo lets you use the [Claude Code CLI](https://claude.ai/download) from your mobile device. Your Mac runs the `claude` process, and your phone displays the terminal over WiFi.
+
+**Perfect for:**
+- Coding from bed without lugging your laptop
+- Quick fixes while away from your desk
+- Showing off Claude to friends on your phone
+- Actually using that sweet terminal theme you spent hours configuring
+
+## Quick Start
+
+### One-Command Installation
+
+```bash
+git clone https://github.com/YOUR_USERNAME/claude-on-the-go.git
+cd claude-on-the-go
+./install.sh
+```
+
+The installer will:
+- Check for Python 3 and Claude CLI
+- Create a virtual environment
+- Install dependencies
+- Run security checks
+- Create configuration file
+
+### Launch
+
+```bash
+./start.sh
+```
+
+You'll see a beautiful QR code - scan it with your phone's camera and you're connected!
+
+## Requirements
+
+**Mac/Linux:**
+- Python 3.8+
+- [Claude Code CLI](https://claude.ai/download) installed
+- Same WiFi network for Mac and phone
+
+**Mobile Device:**
+- Any modern browser (Safari, Chrome, Firefox, etc.)
+- Same WiFi network as your Mac
+
+## Features
+
+### Security First
+- Rate limiting to prevent DoS attacks
+- Input validation and sanitization
+- Content Security Policy (CSP) headers
+- Log redaction for sensitive data
+- No hardcoded IPs or ports
+
+### Universal Terminal Support
+
+Auto-detects your terminal config:
+- **Ghostty** (fully supported)
+- iTerm2
+- Alacritty
+- Kitty
+- Warp
+- Hyper
+- Terminal.app
+- Windows Terminal
+
+Can't find your terminal? Uses a clean default theme.
+
+### Mobile Optimized
+- Responsive terminal sizing
+- iOS safe area support (handles notch/home indicator)
+- Smooth scrolling with momentum
+- Keyboard-aware layout
+- Works on ANY phone browser
+
+## How It Works
+
+```
+┌─────────────────┐         WiFi         ┌─────────────────┐
+│  Your iPhone    │◄──────────────────────│  Your Mac       │
+│                 │                       │                 │
+│  [Safari/Chrome]│    WebSocket (8000)   │  Claude Process │
+│  Frontend (8001)│◄──────────────────────│  Backend (8000) │
+│                 │                       │                 │
+│  xterm.js       │                       │  pexpect + PTY  │
+│  renders        │                       │  controls       │
+│  terminal       │                       │  claude CLI     │
+└─────────────────┘                       └─────────────────┘
+```
+
+1. **Backend** (Python + FastAPI) spawns `claude` CLI
+2. **Frontend** (HTML + xterm.js) renders terminal
+3. **WebSocket** streams I/O between them
+4. **mDNS** lets you use `.local` domains (no IP addresses!)
+
+## Configuration
+
+Edit `.env` to customize (all optional):
+
+```bash
+# Security
+ENABLE_AUTH=true                # Require token authentication
+AUTH_TOKEN=your-secret-token    # Set your auth token
+
+# Network
+BACKEND_PORT=8000              # Backend WebSocket port
+FRONTEND_PORT=8001             # Frontend HTTP port
+
+# Rate Limiting
+RATE_LIMIT_MESSAGES=10         # Max messages per second
+RATE_LIMIT_BYTES=100000        # Max bytes per second
+
+# Logging
+LOG_LEVEL=INFO                 # DEBUG, INFO, WARNING, ERROR
+LOG_REDACTION=true             # Redact IPs/tokens from logs
+```
+
+## Troubleshooting
+
+### "Claude CLI not found"
+
+Install it from [https://claude.ai/download](https://claude.ai/download)
+
+### "Can't connect from phone"
+
+1. Make sure you're on the same WiFi network
+2. Try the direct IP URL instead of `.local`
+3. Check firewall settings on your Mac
+
+### "Terminal looks weird"
+
+Your terminal config wasn't detected. To add support:
+1. Check `docs/ADDING_TERMINALS.md`
+2. Or just use the default theme (it's pretty good!)
+
+### "Connection keeps dropping"
+
+Check `backend.log` and `frontend.log` for errors:
+
+```bash
+tail -f backend.log
+tail -f frontend.log
+```
+
+## Documentation
+
+- `docs/SECURITY.md` - Security policy and best practices
+- `docs/ADDING_TERMINALS.md` - How to add new terminal parsers
+- `docs/LESSONS_LEARNED.md` - Technical deep dive
+
+## Architecture Highlights
+
+**Backend:**
+- FastAPI with native WebSockets
+- Pexpect for PTY control
+- Watermark flow control (pause at 100KB, resume at 10KB)
+- Message batching (30ms window)
+- Single-user mode (auto-closes old connections)
+
+**Frontend:**
+- Xterm.js 5.3+
+- DOM renderer on mobile (better ANSI support)
+- Canvas renderer on desktop (better performance)
+- Exponential backoff reconnection (1s→30s with jitter)
+
+**Security:**
+- Token bucket rate limiting
+- Input size limits (10KB per message)
+- Terminal size validation (1-500 rows/cols)
+- CSP, X-Frame-Options, X-XSS-Protection headers
+- Constant-time auth token comparison
+
+## Contributing
+
+PRs welcome! Especially for:
+- New terminal parsers (see `docs/ADDING_TERMINALS.md`)
+- Bug fixes
+- Documentation improvements
+- Performance optimizations
+
+Please read `SECURITY.md` before contributing.
+
+## License
+
+MIT License - see `LICENSE` file
+
+Built for vibecoders who want Claude in their pocket.
+
+## Acknowledgments
+
+- [Anthropic](https://anthropic.com) for Claude
+- [xterm.js](https://xtermjs.org/) for terminal emulation
+- [FastAPI](https://fastapi.tiangolo.com/) for the web framework
+
+---
+
+**Questions?** Open an issue!
+**Want to add a terminal?** Check `docs/ADDING_TERMINALS.md`!
+**Security concern?** See `SECURITY.md`!
