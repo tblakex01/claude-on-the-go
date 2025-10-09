@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import time
 
 from claude_wrapper import ClaudeWrapper
-from ghostty_parser import parse_ghostty_config
+from parsers import parse_terminal_config
 from network_utils import print_startup_banner
 from config import Config
 from security import (
@@ -145,7 +145,7 @@ class ConnectionManager:
         # Send theme config on connect
         try:
             self._log("[WS] Parsing terminal config...")
-            theme_config = parse_ghostty_config()
+            theme_config = parse_terminal_config()
             self._log(f"[WS] Theme config loaded")
             theme_msg = {
                 "type": "theme",
