@@ -14,6 +14,7 @@ from claude_wrapper import ClaudeWrapper
 from parsers import parse_terminal_config
 from network_utils import print_startup_banner
 from config import Config
+from session_manager import SessionManager
 from security import (
     RateLimiter,
     validate_message,
@@ -82,6 +83,8 @@ class ConnectionManager:
 
     SINGLE-USER MODE: Only allows one active WebSocket connection at a time.
     When a new connection is established, all existing connections are automatically closed.
+
+    SESSION PERSISTENCE: Sessions survive disconnections and can be reconnected.
     """
 
     def __init__(self):
@@ -91,6 +94,10 @@ class ConnectionManager:
         self.flush_task = None
         self.heartbeat_task = None
         self.current_connection: Optional[WebSocket] = None
+        self.current_session_id: Optional[str] = None
+
+        # Session management
+        self.session_manager = SessionManager(session_timeout=3600)  # 1 hour
 
         # Security components
         self.rate_limiter = RateLimiter(
@@ -106,11 +113,13 @@ class ConnectionManager:
         """Log with optional redaction"""
         print(redact_logs(message, enabled=Config.LOG_REDACTION))
 
-    async def connect(self, websocket: WebSocket, auth_token: Optional[str] = None):
+    async def connect(self, websocket: WebSocket, auth_token: Optional[str] = None, session_id: Optional[str] = None):
         """Handle new WebSocket connection with authentication and security
 
         SINGLE-USER MODE: Automatically closes all existing connections before
         accepting the new one. This prevents output duplication from multiple tabs/devices.
+
+        SESSION PERSISTENCE: If session_id provided, reconnects to existing session.
         """
         # Check authentication if enabled
         if not self.auth_manager.verify(auth_token):
@@ -119,6 +128,14 @@ class ConnectionManager:
             return
 
         self._log("[WS] Starting connection...")
+
+        # Check for session reconnection
+        if session_id:
+            existing_session = self.session_manager.get_session(session_id)
+            if existing_session:
+                self._log(f"[WS] Reconnecting to existing session {session_id}")
+                self.claude = existing_session.claude_wrapper
+                self.current_session_id = session_id
 
         # SINGLE-USER GUARD: Close all existing connections
         if self.active_connections:
@@ -170,6 +187,13 @@ class ConnectionManager:
             )
             await self.claude.start(self._handle_claude_output)
             self._log("[WS] Claude process started")
+
+            # Create new session
+            self.current_session_id = self.session_manager.create_session(self.claude)
+            await self._send_json(websocket, {
+                "type": "session",
+                "session_id": self.current_session_id
+            })
 
         # Start flush task if not running
         if self.flush_task is None or self.flush_task.done():
