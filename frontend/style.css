@@ -1,0 +1,325 @@
+/**
+ * Claude-onTheGo Frontend Styles - Mobile First
+ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    /* Prevent zoom on iOS when focusing inputs */
+    -webkit-text-size-adjust: 100%;
+    /* Handle iPhone notch/safe areas */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    overflow: hidden;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    display: flex;
+    flex-direction: column;
+    /* Prevent bounce scrolling on iOS */
+    position: fixed;
+    width: 100%;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+    /* Prevent text selection on UI elements */
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#status-bar {
+    background-color: #252526;
+    border-bottom: 1px solid #3e3e42;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    min-height: 44px; /* iOS minimum touch target */
+    /* Handle notch on iPhone */
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+}
+
+#connection-status {
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+}
+
+#connection-status.connecting {
+    background-color: #f59e0b;
+    color: #000;
+}
+
+#connection-status.connected {
+    background-color: #10b981;
+    color: #000;
+}
+
+#connection-status.disconnected,
+#connection-status.error {
+    background-color: #ef4444;
+    color: #fff;
+}
+
+#connection-status.reconnecting {
+    background-color: #f59e0b;
+    color: #000;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+#claude-status {
+    color: #858585;
+    font-size: 11px;
+    display: none; /* Hide on mobile to save space */
+}
+
+#terminal-container {
+    flex: 1;
+    padding: 0;
+    overflow: hidden;
+    background-color: #1e1e1e;
+    /* Allow text selection in terminal */
+    -webkit-user-select: text;
+    user-select: text;
+    /* Handle safe area at bottom (iPhone home indicator) */
+    padding-bottom: env(safe-area-inset-bottom);
+    /* Center content for iOS native feel */
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+/* Override xterm.js defaults for mobile */
+.xterm {
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+    padding: 12px 8px; /* Slightly more vertical padding for breathing room */
+    margin: 0;
+    box-sizing: border-box;
+    /* Smooth transitions for dynamic resizing */
+    transition: padding 0.2s ease;
+}
+
+.xterm-screen {
+    /* Prevent scrolling issues on mobile */
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    /* Ensure smooth momentum scrolling on iOS */
+    overscroll-behavior-y: contain;
+}
+
+/* Fix xterm canvas sizing on mobile */
+.xterm canvas {
+    width: 100% !important;
+    max-width: 100%;
+}
+
+/* Prevent any visual duplication/ghosting */
+.xterm .xterm-screen canvas {
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Let xterm.js handle canvas layering internally - don't override positioning */
+
+.xterm .xterm-viewport {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #424242 #1e1e1e;
+    /* Better scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+    /* Smooth momentum scrolling */
+    overscroll-behavior-y: contain;
+    /* Hardware acceleration for smooth scrolling */
+    transform: translateZ(0);
+    will-change: scroll-position;
+}
+
+/* Webkit scrollbar (Safari/Chrome) */
+.xterm .xterm-viewport::-webkit-scrollbar {
+    width: 6px;
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Cursor visibility on mobile */
+.xterm-cursor-layer .xterm-cursor {
+    /* Make cursor more visible on mobile */
+    background-color: #b7a8ff !important;
+}
+
+/* Loading state */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 16px;
+    color: #858585;
+}
+
+/* Tablet optimization (landscape phones and small tablets) */
+@media (min-width: 568px) {
+    #status-bar {
+        padding: 10px 20px;
+    }
+
+    #terminal-container {
+        padding: 0 8px;
+    }
+
+    .xterm {
+        padding: 16px;
+    }
+
+    #claude-status {
+        display: inline; /* Show status on larger screens */
+    }
+}
+
+/* Desktop optimization */
+@media (min-width: 768px) {
+    body {
+        position: static;
+        height: 100vh;
+    }
+
+    #status-bar {
+        padding: 8px 16px;
+        font-size: 13px;
+        min-height: auto;
+    }
+
+    #connection-status {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    #terminal-container {
+        padding: 16px;
+    }
+
+    .xterm {
+        max-width: 1200px; /* Max width on desktop for readability */
+        padding: 20px;
+    }
+
+    .xterm .xterm-viewport::-webkit-scrollbar {
+        width: 8px;
+    }
+}
+
+/* Large desktop */
+@media (min-width: 1024px) {
+    #terminal-container {
+        padding: 24px;
+    }
+
+    .xterm {
+        max-width: 1400px;
+        padding: 24px;
+    }
+}
+
+/* iOS-specific fixes */
+@supports (-webkit-touch-callout: none) {
+    /* Prevent iOS Safari rubber band effect */
+    body {
+        position: fixed;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+    }
+
+    /* Fix for iOS keyboard covering terminal */
+    #terminal-container {
+        height: calc(100vh - 44px);
+        height: calc(100dvh - 44px);
+        min-height: 200px; /* Ensure minimum height when keyboard is visible */
+        /* Smooth transitions when keyboard appears */
+        transition: height 0.3s ease-out;
+    }
+
+    /* Better handling of terminal when keyboard is shown */
+    .xterm {
+        padding: 8px 4px; /* Keep horizontal padding minimal, vertical for thumb space */
+    }
+
+    /* Smoother scrolling on iOS */
+    .xterm-viewport {
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+        /* Prevent bounce at top/bottom */
+        overscroll-behavior-y: contain;
+    }
+
+    /* Improve touch responsiveness */
+    .xterm textarea {
+        /* Ensure touch events are captured properly */
+        touch-action: manipulation;
+    }
+}
+
+/* Dark mode support (if OS/browser has dark mode) */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1e1e1e;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    #connection-status {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
