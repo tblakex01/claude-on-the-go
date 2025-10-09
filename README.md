@@ -53,22 +53,38 @@ You'll see a beautiful QR code - scan it with your phone's camera and you're con
 ## Features
 
 ### Security First
-- Rate limiting to prevent DoS attacks
+- Rate limiting to prevent DoS attacks (10 msg/sec, 100KB/sec)
 - Input validation and sanitization
 - Content Security Policy (CSP) headers
 - Log redaction for sensitive data
+- Optional token authentication
 - No hardcoded IPs or ports
+
+### Session Persistence
+- Sessions survive disconnections and reconnect seamlessly
+- UUID-based session IDs with 1-hour timeout
+- Automatic session cleanup
+- Resume coding exactly where you left off
+
+### Bidirectional Clipboard Sync
+- Copy on Mac → automatically syncs to phone
+- Copy on phone → automatically syncs to Mac
+- Configurable sync interval (default 1 second)
+- Content hashing prevents sync loops
+- Can be disabled via config
 
 ### Universal Terminal Support
 
-Auto-detects your terminal config:
-- **Ghostty** (fully supported)
-- iTerm2
-- Alacritty
-- Kitty
+Fully implemented parsers:
+- **Ghostty** - Complete theme and font parsing
+- **iTerm2** - Binary plist with RGB color extraction
+- **Alacritty** - YAML config with multiple file support
+- **Kitty** - Key-value config with include directives
+- **Terminal.app** - NSColor/NSFont parsing (best-effort)
+
+Partial support (default theme fallback):
 - Warp
 - Hyper
-- Terminal.app
 - Windows Terminal
 
 Can't find your terminal? Uses a clean default theme.
@@ -79,6 +95,14 @@ Can't find your terminal? Uses a clean default theme.
 - Smooth scrolling with momentum
 - Keyboard-aware layout
 - Works on ANY phone browser
+- Real-time clipboard sync with your Mac
+
+### Production Ready
+- 60-minute stability testing with live metrics
+- Memory leak detection and monitoring
+- CPU and latency tracking
+- Error rate monitoring
+- Stability scoring (90+/100 passing criteria)
 
 ## How It Works
 
@@ -110,16 +134,20 @@ ENABLE_AUTH=true                # Require token authentication
 AUTH_TOKEN=your-secret-token    # Set your auth token
 
 # Network
-BACKEND_PORT=8000              # Backend WebSocket port
-FRONTEND_PORT=8001             # Frontend HTTP port
+BACKEND_PORT=8000               # Backend WebSocket port
+FRONTEND_PORT=8001              # Frontend HTTP port
 
 # Rate Limiting
-RATE_LIMIT_MESSAGES=10         # Max messages per second
-RATE_LIMIT_BYTES=100000        # Max bytes per second
+RATE_LIMIT_MESSAGES=10          # Max messages per second
+RATE_LIMIT_BYTES=100000         # Max bytes per second
 
 # Logging
-LOG_LEVEL=INFO                 # DEBUG, INFO, WARNING, ERROR
-LOG_REDACTION=true             # Redact IPs/tokens from logs
+LOG_LEVEL=INFO                  # DEBUG, INFO, WARNING, ERROR
+LOG_REDACTION=true              # Redact IPs/tokens from logs
+
+# Features
+ENABLE_CLIPBOARD_SYNC=true      # Enable clipboard synchronization
+CLIPBOARD_SYNC_INTERVAL=1.0     # Clipboard check interval (seconds)
 ```
 
 ## Troubleshooting
@@ -163,19 +191,30 @@ tail -f frontend.log
 - Watermark flow control (pause at 100KB, resume at 10KB)
 - Message batching (30ms window)
 - Single-user mode (auto-closes old connections)
+- Session persistence with UUID-based IDs
+- Clipboard monitoring with change detection (pbcopy/pbpaste)
 
 **Frontend:**
 - Xterm.js 5.3+
 - DOM renderer on mobile (better ANSI support)
 - Canvas renderer on desktop (better performance)
 - Exponential backoff reconnection (1s→30s with jitter)
+- Auto-reconnects to existing sessions
 
 **Security:**
-- Token bucket rate limiting
+- Token bucket rate limiting (10 msg/sec, 100KB/sec)
 - Input size limits (10KB per message)
 - Terminal size validation (1-500 rows/cols)
 - CSP, X-Frame-Options, X-XSS-Protection headers
 - Constant-time auth token comparison
+- Log redaction for IPs, tokens, emails
+
+**Terminal Parsers:**
+- Ghostty: Key-value config parsing
+- iTerm2: Binary plist with RGB float conversion
+- Alacritty: YAML config with multi-file support
+- Kitty: Key-value with include directives
+- Terminal.app: NSColor/NSFont heuristic parsing
 
 ## Contributing
 
