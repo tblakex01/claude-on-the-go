@@ -8,3 +8,7 @@ qrcode[pil]==7.4.2
 # Security Tools
 safety==2.3.5
 bandit==1.7.5
+
+# Testing
+websockets==12.0
+psutil==5.9.6
