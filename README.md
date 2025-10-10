@@ -19,7 +19,7 @@ Claude-onTheGo lets you use the [Claude Code CLI](https://claude.ai/download) fr
 ### One-Command Installation
 
 ```bash
-git clone https://github.com/your-username/claude-on-the-go.git
+git clone https://github.com/MatthewJamisonJS/claude-on-the-go.git
 cd claude-on-the-go
 ./install.sh
 ```
@@ -240,6 +240,14 @@ Built for vibecoders who want Claude in their pocket.
 
 ---
 
-**Questions?** Open an issue!
-**Want to add a terminal?** Check `docs/ADDING_TERMINALS.md`!
-**Security concern?** See `SECURITY.md`!
+## Questions or Issues?
+
+**Found a bug or have a question?**
+Open an issue: https://github.com/MatthewJamisonJS/claude-on-the-go/issues
+
+**Security concern?**
+Report privately: https://github.com/MatthewJamisonJS/claude-on-the-go/security/advisories/new
+(This creates a private report that only maintainers can see)
+
+**Want to add a terminal parser?**
+Check out: `docs/ADDING_TERMINALS.md`

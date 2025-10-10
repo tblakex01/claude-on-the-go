@@ -151,24 +151,38 @@ To be transparent, Claude-onTheGo does **NOT** currently include:
 If you discover a security vulnerability, please report it responsibly:
 
 **Option 1: GitHub Security Advisories (Preferred)**
-1. Go to the repository's Security tab
-2. Click "Report a vulnerability"
-3. Fill out the private vulnerability report
 
-**Option 2: GitHub Issues**
-- Create a new issue and mark it as "Security"
-- We'll move it to a private discussion if needed
+Visit: **https://github.com/MatthewJamisonJS/claude-on-the-go/security/advisories/new**
+
+This creates a **private** security report that only maintainers can see. The general public won't see your report until we've had time to fix the issue.
+
+**How to use it:**
+1. Click the link above (you'll need to be logged into GitHub)
+2. Fill out the vulnerability report form
+3. Click "Submit report"
+
+**Option 2: GitHub Issues (For non-critical bugs or questions)**
+
+Visit: **https://github.com/MatthewJamisonJS/claude-on-the-go/issues**
+
+Use this for:
+- Non-security bugs
+- Feature requests
+- General questions
+- Less critical security concerns that don't need immediate privacy
 
 **Please include:**
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
 - Suggested fix (if you have one)
+- Your environment (Python version, OS, etc.)
 
 **You can expect:**
 - Response within 48 hours
 - Regular updates on our progress
 - Credit in the security advisory (unless you prefer anonymity)
+- A fix in the next patch release for critical issues
 
 ## Security Checklist for Contributors
 
