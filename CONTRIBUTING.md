@@ -188,23 +188,41 @@ def parse_terminal_theme(config_path: str) -> TerminalTheme:
     pass
 ```
 
-## Terminal Parser Bounty Program
+## Terminal Parser Contributions (Community Welcome!)
 
-We're offering **$50 bounties** for each completed terminal parser implementation!
+We welcome community contributions for terminal theme parsers! Currently we have:
+
+- ✅ **Ghostty** - Fully implemented
+- ⏳ **iTerm2, Alacritty, Kitty, Warp, Hyper, Terminal.app, Windows Terminal** - Contributions welcome!
+
+### Why We Need Your Help
+
+This is a **bootstrapped solo project** built by a developer supporting his family. I can't pay for contributions yet, but I want to be transparent about where we are:
+
+**Current status:**
+- Building toward first revenue (mobile app launch)
+- Every feature brings us closer to sustainability
+- When profitable, I'll revisit contributor rewards
+
+**What you get:**
+- Your name in CONTRIBUTORS.md and release notes
+- Credit as original author for your terminal
+- First-class support for your terminal of choice
+- Satisfaction of helping a bootstrapped open-source project
 
 ### Available Parsers (7 total)
 
-1. **iTerm2** (macOS) - `~/.config/iterm2/`
+1. **iTerm2** (macOS) - `~/Library/Preferences/com.googlecode.iterm2.plist` (Most requested!)
 2. **Alacritty** (Cross-platform) - `~/.config/alacritty/alacritty.yml`
 3. **Kitty** (Cross-platform) - `~/.config/kitty/kitty.conf`
-4. **Warp** (macOS) - `~/.warp/`
+4. **Warp** (macOS) - `~/.warp/themes/`
 5. **Hyper** (Cross-platform) - `~/.hyper.js`
 6. **Terminal.app** (macOS) - `~/Library/Preferences/com.apple.Terminal.plist`
 7. **Windows Terminal** (Windows) - `%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_*\`
 
 ### Requirements
 
-To claim a bounty, your PR must include:
+To contribute a parser, your PR should include:
 
 1. **Full theme extraction**:
    - All 18 ANSI colors (8 normal + 8 bright)
@@ -227,17 +245,14 @@ To claim a bounty, your PR must include:
    - Follows code style guidelines
    - Type hints and docstrings
 
-### How to Claim
+### How to Contribute
 
-1. Create an issue using the "Terminal Parser Bounty" template
-2. Wait for confirmation that the bounty is available
-3. Implement the parser following `docs/ADDING_TERMINALS.md`
-4. Submit a PR referencing the issue
-5. After PR is merged, receive $50 via GitHub Sponsors
+1. Create an issue announcing which parser you're working on
+2. Implement the parser following `docs/ADDING_TERMINALS.md`
+3. Submit a PR referencing the issue
+4. Get credit in CONTRIBUTORS.md and release notes!
 
-### Payment
-
-Bounties are paid via [GitHub Sponsors](https://github.com/sponsors) within 7 days of PR merge. You'll need to set up a GitHub Sponsors account to receive payment.
+See `docs/ADDING_TERMINALS.md` for detailed implementation guide.
 
 ## Pull Request Process
 
