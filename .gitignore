@@ -51,7 +51,7 @@ debug-*.mp4
 *.pyc
 
 # Personal data
-LESSONS_LEARNED.md
+**/LESSONS_LEARNED.md
 *.personal
 config.personal
 
