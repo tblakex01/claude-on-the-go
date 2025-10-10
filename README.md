@@ -4,7 +4,7 @@
 
 Use Claude on your iPhone, Android, or any device with a browser - while your Mac does the heavy lifting. No cloud sync, no data leaks, just your local network keeping things fast and private.
 
-![Uploading Screenshot 2025-10-09 at 9.39.05 PM.jpeg…]()
+![Uploading Screenshot 2025-10-09 at 9.39.05 PM.jpeg…]
 
 
 
