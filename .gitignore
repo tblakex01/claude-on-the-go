@@ -62,3 +62,81 @@ playwright/
 # Cache
 .cache/
 .pytest_cache/
+
+# ============================================
+# COMMERCIAL & BUSINESS SENSITIVE
+# ============================================
+
+# Revenue & Analytics
+analytics/
+revenue/
+sales/
+customer_data/
+**/metrics.db
+**/analytics.db
+**/revenue_tracking.*
+**/customer_list.*
+
+# Business Strategy (keep public versions, hide internal)
+ROADMAP_INTERNAL.md
+BUSINESS_PLAN.md
+PRICING_STRATEGY.md
+REVENUE_PROJECTIONS.*
+**/financial/
+
+# Payment & Monetization
+stripe_config.json
+payment_keys.*
+subscription_data/
+billing/
+invoices/
+
+# User Data & Privacy
+users.db
+sessions.db
+**/user_data/
+**/pii/
+*.sqlite
+*.sqlite3
+
+# API Keys & Secrets (additional to .env)
+secrets/
+keys/
+credentials/
+*.pem
+*.p12
+*.key
+*.crt
+*.cer
+config.production.json
+
+# App Store & Distribution
+*.mobileprovision
+*.certSigningRequest
+*.p8
+*.p12
+App_Store_Connect_API_Key.json
+google-services.json
+GoogleService-Info.plist
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output/
+.expo/
+ios/Pods/
+android/app/release/
+
+# Beta Testing
+beta_testers.csv
+beta_feedback/
+testflight_notes.txt
+
+# Enterprise & Support
+enterprise/
+support_tickets/
+customer_communications/
+
+# Monitoring & Production
+*.production.log
+production_metrics/
+sentry.config.js
+error_tracking/
