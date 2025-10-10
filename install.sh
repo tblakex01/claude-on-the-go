@@ -77,7 +77,7 @@ echo "Running security checks..."
 
 # Check for known vulnerabilities in dependencies
 echo "  - Checking for known vulnerabilities..."
-safety check --quiet || echo "    ⚠️  Some vulnerabilities found (review above)"
+safety check || echo "    ⚠️  Some vulnerabilities found (review above)"
 
 # Run bandit security linter on backend
 echo "  - Running security linter..."

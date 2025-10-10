@@ -9,6 +9,7 @@ PyYAML==6.0.1
 # Security Tools
 safety==2.3.5
 bandit==1.7.5
+pbr>=2.0.0  # Required by bandit
 
 # Testing
 websockets==12.0
