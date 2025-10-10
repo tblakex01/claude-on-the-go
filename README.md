@@ -130,6 +130,17 @@ Partial support (default theme fallback):
 3. **WebSocket** streams I/O between them
 4. **mDNS** lets you use `.local` domains (no IP addresses!)
 
+## Project Structure
+
+- `legacy/` - v1.0 architecture (frozen, maintained for compatibility)
+- `core/` - Business logic (PTY manager, session store, config)
+- `server/` - FastAPI WebSocket + REST API
+- `client/` - Modern web client + PWA
+- `integrations/` - Notifications, Tailscale, QR codes
+- `cli/` - Command-line interface
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed documentation.
+
 ## Configuration
 
 Edit `.env` to customize (all optional):

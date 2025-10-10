@@ -68,9 +68,13 @@ class ProcessManager:
         self.backend_log = open(backend_log_path, "w")
 
         # Start backend process
+        # Get the script directory and construct path to legacy/backend
+        script_dir = Path(__file__).parent
+        backend_dir = script_dir / "backend"
+
         self.backend_process = subprocess.Popen(
             ["python3", "-u", "app.py"],
-            cwd="backend",
+            cwd=str(backend_dir),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
@@ -174,9 +178,13 @@ class ProcessManager:
         self.frontend_log = open(frontend_log_path, "w")
 
         # Start frontend process
+        # Get the script directory and construct path to legacy/frontend
+        script_dir = Path(__file__).parent
+        frontend_dir = script_dir / "frontend"
+
         self.frontend_process = subprocess.Popen(
             ["python3", "-u", "serve.py", str(frontend_port)],
-            cwd="frontend",
+            cwd=str(frontend_dir),
             stdout=self.frontend_log,
             stderr=subprocess.STDOUT,
             text=True,

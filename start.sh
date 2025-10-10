@@ -37,5 +37,5 @@ if ! command -v claude &> /dev/null; then
     echo ""
 fi
 
-# Launch using Python launcher
-python3 launcher.py
+# Launch using Python launcher (legacy mode)
+python3 legacy/launcher.py
