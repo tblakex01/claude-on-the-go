@@ -1,4 +1,4 @@
-# Claude-onTheGo
+# Claude-on-the-go
 
 > Control your Mac's `claude` CLI from your phone. Because sometimes you just want to code from the couch.
 
