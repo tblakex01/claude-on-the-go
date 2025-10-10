@@ -7,6 +7,7 @@ Use Claude on your iPhone, Android, or any device with a browser - while your Ma
 ![Uploading Screenshot 2025-10-09 at 9.39.05 PM.jpeg…]()
 
 
+
 ## 📱 What Is This?
 
 Claude-onTheGo lets you use the [Claude Code CLI](https://claude.ai/download) from your mobile device. Your Mac runs the `claude` process, and your phone displays the terminal over WiFi.
