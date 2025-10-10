@@ -96,50 +96,17 @@ echo ""
 echo "Backend:  http://localhost:$BACKEND_PORT"
 echo "Frontend: http://localhost:$FRONTEND_PORT"
 echo ""
-echo "Commands:"
-echo "  Press 'l' to view logs"
-echo "  Press 'q' to quit"
+echo "Logs:"
+echo "  Backend:  tail -f backend.log"
+echo "  Frontend: tail -f frontend.log"
+echo ""
+echo "To stop: Press Ctrl+C or run './stop.sh'"
 echo ""
 echo "═══════════════════════════════════════════════════════"
 echo ""
 
-# Trap for cleanup on exit
-cleanup() {
-    echo ""
-    echo "Stopping servers..."
-    kill $BACKEND_PID $FRONTEND_PID 2>/dev/null
-    rm -f .backend.pid .frontend.pid
-    echo "Stopped."
-    exit 0
-}
+# Wait for user interrupt
+trap 'echo ""; echo "Stopping servers..."; kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; rm -f .backend.pid .frontend.pid; echo "Stopped."; exit 0' INT TERM
 
-trap cleanup INT TERM
-
-# Interactive command loop
-show_logs() {
-    clear
-    echo "╭────────────────────────────────────────────────────────╮"
-    echo "│        📋 Live Logs (Press Ctrl+C to return)          │"
-    echo "╰────────────────────────────────────────────────────────╯"
-    echo ""
-    # Show both logs side by side using tail
-    tail -f backend.log frontend.log
-}
-
-# Keep script running with interactive commands
-while true; do
-    # Read single character input (with 1 second timeout)
-    read -rsn1 -t 1 input 2>/dev/null
-
-    case "$input" in
-        l|L|o|O)
-            show_logs
-            # After exiting logs, show menu again
-            echo ""
-            echo "Press 'l' for logs, 'q' to quit"
-            ;;
-        q|Q)
-            cleanup
-            ;;
-    esac
-done
+# Keep script running
+wait
