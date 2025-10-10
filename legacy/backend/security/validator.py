@@ -2,8 +2,7 @@
 Input validation for WebSocket messages and terminal commands.
 """
 
-from typing import Dict, Any, Tuple
-
+from typing import Any, Dict, Tuple
 
 # Security limits
 MAX_MESSAGE_SIZE = 10_000  # 10KB per message
@@ -15,6 +14,7 @@ MIN_TERMINAL_COLS = 1
 
 class ValidationError(Exception):
     """Raised when validation fails."""
+
     pass
 
 

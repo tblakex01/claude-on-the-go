@@ -1,9 +1,9 @@
 """Security module for Claude-on-the-Go."""
 
-from .rate_limiter import RateLimiter
-from .validator import validate_message, validate_terminal_size
-from .sanitizer import sanitize_input, redact_logs
 from .auth import AuthManager
+from .rate_limiter import RateLimiter
+from .sanitizer import redact_logs, sanitize_input
+from .validator import validate_message, validate_terminal_size
 
 __all__ = [
     "RateLimiter",

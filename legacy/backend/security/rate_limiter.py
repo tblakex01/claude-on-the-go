@@ -4,13 +4,14 @@ Rate limiting for WebSocket connections to prevent DoS attacks.
 
 import time
 from collections import deque
-from typing import Dict, Tuple
 from dataclasses import dataclass
+from typing import Dict, Tuple
 
 
 @dataclass
 class RateLimit:
     """Rate limit configuration."""
+
     messages_per_second: int
     bytes_per_second: int
 

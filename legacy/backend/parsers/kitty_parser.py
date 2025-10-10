@@ -8,7 +8,7 @@ Parses Kitty's color schemes and font settings
 """
 
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 from .default_theme import get_default_theme
 
@@ -41,16 +41,16 @@ class KittyParser:
             return config
 
         try:
-            with open(self.config_path, 'r') as f:
+            with open(self.config_path, "r") as f:
                 for line in f:
                     line = line.strip()
 
                     # Skip comments and empty lines
-                    if not line or line.startswith('#'):
+                    if not line or line.startswith("#"):
                         continue
 
                     # Handle include directives (for theme files)
-                    if line.startswith('include '):
+                    if line.startswith("include "):
                         include_path = line.split(None, 1)[1]
                         # Resolve relative to kitty config directory
                         include_file = self.config_path.parent / include_path
@@ -75,10 +75,10 @@ class KittyParser:
         """Parse a single Kitty config file"""
         config = {}
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 for line in f:
                     line = line.strip()
-                    if not line or line.startswith('#'):
+                    if not line or line.startswith("#"):
                         continue
 
                     parts = line.split(None, 1)
@@ -107,11 +107,7 @@ class KittyParser:
                 print("[Kitty] Empty config, using default theme")
                 return get_default_theme()
 
-            theme = {
-                "colors": {},
-                "font": "monospace",
-                "fontSize": 13
-            }
+            theme = {"colors": {}, "font": "monospace", "fontSize": 13}
 
             # Extract basic colors
             if "foreground" in config:

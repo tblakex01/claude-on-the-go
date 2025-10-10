@@ -13,9 +13,7 @@ try:
     from pydantic import Field, field_validator
     from pydantic_settings import BaseSettings, SettingsConfigDict
 except ImportError:
-    raise ImportError(
-        "pydantic-settings is required. Install with: pip install pydantic-settings"
-    )
+    raise ImportError("pydantic-settings is required. Install with: pip install pydantic-settings")
 
 
 class Config(BaseSettings):
@@ -140,9 +138,7 @@ class Config(BaseSettings):
         valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         v_upper = v.upper()
         if v_upper not in valid_levels:
-            raise ValueError(
-                f"Invalid LOG_LEVEL: {v}. Must be one of {valid_levels}"
-            )
+            raise ValueError(f"Invalid LOG_LEVEL: {v}. Must be one of {valid_levels}")
         return v_upper
 
     def validate_config(self) -> None:

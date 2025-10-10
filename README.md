@@ -1,5 +1,9 @@
 # Claude-on-the-go
 
+[![CI](https://github.com/MatthewJamisonJS/claude-on-the-go/actions/workflows/ci.yml/badge.svg)](https://github.com/MatthewJamisonJS/claude-on-the-go/actions/workflows/ci.yml)
+[![Security](https://img.shields.io/badge/security-actively%20maintained-brightgreen)]()
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)]()
+
 > Control your Mac's `claude` CLI from your phone. Because sometimes you just want to code from the couch.
 
 Use Claude on your iPhone, Android, or any device with a browser - while your Mac does the heavy lifting. No cloud sync, no data leaks, just your local network keeping things fast and private.

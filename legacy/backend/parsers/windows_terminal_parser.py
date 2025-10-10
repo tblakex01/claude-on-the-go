@@ -14,7 +14,7 @@ TODO for AI assistants: Implement Windows Terminal JSON parsing
 """
 
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 from .default_theme import get_default_theme
 

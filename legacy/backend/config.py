@@ -12,8 +12,7 @@ class Config:
 
     # Security settings
     ALLOWED_ORIGINS: List[str] = os.getenv(
-        "ALLOWED_ORIGINS",
-        "http://localhost:8001,http://127.0.0.1:8001"
+        "ALLOWED_ORIGINS", "http://localhost:8001,http://127.0.0.1:8001"
     ).split(",")
 
     MAX_CONNECTIONS: int = int(os.getenv("MAX_CONNECTIONS", "1"))

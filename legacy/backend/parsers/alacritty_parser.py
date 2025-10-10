@@ -7,9 +7,10 @@ Format: YAML
 Parses Alacritty's color schemes and font settings
 """
 
-import yaml
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
+import yaml
 
 from .default_theme import get_default_theme
 
@@ -77,18 +78,14 @@ class AlacrittyParser:
 
         try:
             # Read YAML config
-            with open(self.config_path, 'r') as f:
+            with open(self.config_path, "r") as f:
                 config = yaml.safe_load(f)
 
             if not config:
                 print("[Alacritty] Empty config file, using default theme")
                 return get_default_theme()
 
-            theme = {
-                "colors": {},
-                "font": "monospace",
-                "fontSize": 13
-            }
+            theme = {"colors": {}, "font": "monospace", "fontSize": 13}
 
             # Extract colors
             colors_section = config.get("colors", {})
@@ -110,7 +107,9 @@ class AlacrittyParser:
             # Selection colors
             selection = colors_section.get("selection", {})
             if "background" in selection:
-                theme["colors"]["selectionBackground"] = self._normalize_color(selection["background"])
+                theme["colors"]["selectionBackground"] = self._normalize_color(
+                    selection["background"]
+                )
 
             # Normal colors (ANSI 0-7)
             normal = colors_section.get("normal", {})

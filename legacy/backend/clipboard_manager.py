@@ -4,9 +4,9 @@ Handles bidirectional clipboard synchronization between Mac and mobile devices
 """
 
 import asyncio
-import subprocess
-from typing import Optional, Callable
 import hashlib
+import subprocess
+from typing import Callable, Optional
 
 
 class ClipboardManager:
@@ -32,12 +32,7 @@ class ClipboardManager:
             Clipboard content as string, or None if error
         """
         try:
-            result = subprocess.run(
-                ['pbpaste'],
-                capture_output=True,
-                text=True,
-                timeout=1.0
-            )
+            result = subprocess.run(["pbpaste"], capture_output=True, text=True, timeout=1.0)
             if result.returncode == 0:
                 return result.stdout
         except Exception as e:
@@ -55,11 +50,7 @@ class ClipboardManager:
             True if successful, False otherwise
         """
         try:
-            process = subprocess.Popen(
-                ['pbcopy'],
-                stdin=subprocess.PIPE,
-                text=True
-            )
+            process = subprocess.Popen(["pbcopy"], stdin=subprocess.PIPE, text=True)
             process.communicate(input=text, timeout=1.0)
             return process.returncode == 0
         except Exception as e:
@@ -76,7 +67,7 @@ class ClipboardManager:
         Returns:
             SHA256 hash of content
         """
-        return hashlib.sha256(content.encode('utf-8')).hexdigest()
+        return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
     async def set_from_remote(self, text: str):
         """

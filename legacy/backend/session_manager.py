@@ -3,16 +3,17 @@ Session Manager for Claude-onTheGo
 Manages persistent sessions that survive disconnections
 """
 
-import uuid
-import time
-from typing import Dict, Optional, Tuple
-from dataclasses import dataclass
 import asyncio
+import time
+import uuid
+from dataclasses import dataclass
+from typing import Dict, Optional, Tuple
 
 
 @dataclass
 class Session:
     """Represents a persistent claude session"""
+
     id: str
     pid: int
     created_at: float
@@ -69,7 +70,7 @@ class SessionManager:
             last_activity=time.time(),
             rows=rows,
             cols=cols,
-            claude_wrapper=claude_wrapper
+            claude_wrapper=claude_wrapper,
         )
 
         self.sessions[session_id] = session
@@ -138,7 +139,7 @@ class SessionManager:
                 "last_activity": s.last_activity,
                 "rows": s.rows,
                 "cols": s.cols,
-                "is_alive": s.claude_wrapper.is_alive() if s.claude_wrapper else False
+                "is_alive": s.claude_wrapper.is_alive() if s.claude_wrapper else False,
             }
             for sid, s in self.sessions.items()
         }
@@ -150,7 +151,8 @@ class SessionManager:
                 await asyncio.sleep(60)  # Check every minute
 
                 expired = [
-                    sid for sid, session in self.sessions.items()
+                    sid
+                    for sid, session in self.sessions.items()
                     if session.is_expired(self.session_timeout)
                 ]
 

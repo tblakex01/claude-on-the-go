@@ -5,8 +5,7 @@ Parses key-value format and converts to xterm.js theme format
 
 import os
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-
+from typing import Any, Dict, List, Optional
 
 # Built-in ghostty themes mapped to xterm.js color format
 GHOSTTY_THEMES = {
@@ -112,19 +111,19 @@ class GhosttyConfig:
             return config
 
         try:
-            with open(self.config_path, 'r', encoding='utf-8') as f:
+            with open(self.config_path, "r", encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
 
                     # Skip empty lines and comments
-                    if not line or line.startswith('#'):
+                    if not line or line.startswith("#"):
                         continue
 
                     # Split on FIRST equals sign only
-                    if '=' not in line:
+                    if "=" not in line:
                         continue
 
-                    key, _, value = line.partition('=')
+                    key, _, value = line.partition("=")
                     key = key.strip()
                     value = value.strip()
 
@@ -149,7 +148,7 @@ class GhosttyConfig:
         Returns:
             Dict with xterm.js color keys
         """
-        theme_name = self.config.get('theme', '').strip()
+        theme_name = self.config.get("theme", "").strip()
 
         # Look up theme in built-in themes
         if theme_name in GHOSTTY_THEMES:
@@ -161,7 +160,7 @@ class GhosttyConfig:
                 print(f"Warning: Theme '{theme_name}' not found, using default")
 
         # Override with custom palette colors if present
-        if 'palette' in self.config:
+        if "palette" in self.config:
             # TODO: Parse palette entries like "0 = #000000"
             pass
 
@@ -170,15 +169,15 @@ class GhosttyConfig:
     def get_font_family(self) -> str:
         """Get font family from config"""
         # font-family can be repeatable, use first one
-        font = self.config.get('font-family', 'monospace')
+        font = self.config.get("font-family", "monospace")
         if isinstance(font, list):
-            font = font[0] if font else 'monospace'
+            font = font[0] if font else "monospace"
         return font
 
     def get_font_size(self) -> int:
         """Get font size from config"""
         try:
-            size = int(self.config.get('font-size', '14'))
+            size = int(self.config.get("font-size", "14"))
             return size
         except (ValueError, TypeError):
             return 14
@@ -193,7 +192,7 @@ class GhosttyConfig:
         return {
             "colors": self.get_theme_colors(),
             "font": self.get_font_family(),
-            "fontSize": self.get_font_size()
+            "fontSize": self.get_font_size(),
         }
 
 

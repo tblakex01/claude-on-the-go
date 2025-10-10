@@ -9,7 +9,7 @@ Parses iTerm2's color profiles and font settings
 
 import plistlib
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 from .default_theme import get_default_theme
 
@@ -27,7 +27,9 @@ class ITerm2Parser:
         if config_path:
             self.config_path = Path(config_path).expanduser()
         else:
-            self.config_path = Path("~/Library/Preferences/com.googlecode.iterm2.plist").expanduser()
+            self.config_path = Path(
+                "~/Library/Preferences/com.googlecode.iterm2.plist"
+            ).expanduser()
 
     def _rgb_to_hex(self, color_dict: Dict[str, float]) -> str:
         """
@@ -106,11 +108,7 @@ class ITerm2Parser:
         Returns:
             Xterm.js theme dict
         """
-        theme = {
-            "colors": {},
-            "font": "monospace",
-            "fontSize": 13
-        }
+        theme = {"colors": {}, "font": "monospace", "fontSize": 13}
 
         # Extract colors
         color_map = {
@@ -165,7 +163,7 @@ class ITerm2Parser:
 
         try:
             # Read plist file
-            with open(self.config_path, 'rb') as f:
+            with open(self.config_path, "rb") as f:
                 plist_data = plistlib.load(f)
 
             # iTerm2 stores profiles in "New Bookmarks" array
@@ -179,7 +177,9 @@ class ITerm2Parser:
             default_profile = None
             for profile in profiles:
                 # Check if this is marked as the default profile
-                if profile.get("Default Bookmark", False) or profile.get("Guid") == plist_data.get("Default Bookmark Guid"):
+                if profile.get("Default Bookmark", False) or profile.get("Guid") == plist_data.get(
+                    "Default Bookmark Guid"
+                ):
                     default_profile = profile
                     break
 

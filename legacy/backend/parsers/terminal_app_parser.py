@@ -12,7 +12,7 @@ This parser handles basic cases and falls back to defaults for complex formats.
 import plistlib
 import struct
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 from .default_theme import get_default_theme
 
@@ -56,18 +56,19 @@ class TerminalAppParser:
             # This is a heuristic approach - look for 3 consecutive float values
             # that could be RGB components (0.0-1.0)
 
-            data_str = data.decode('latin1', errors='ignore')
+            data_str = data.decode("latin1", errors="ignore")
 
             # Look for "RGB" or "DeviceRGB" color space indicators
-            if 'RGB' in data_str or 'rgb' in data_str:
+            if "RGB" in data_str or "rgb" in data_str:
                 # Try to extract float values
                 # This is fragile but works for common cases
                 import re
+
                 # Look for sequences of bytes that might be floats
                 floats = []
                 for i in range(0, len(data) - 4, 1):
                     try:
-                        val = struct.unpack('>f', data[i:i+4])[0]  # Big-endian float
+                        val = struct.unpack(">f", data[i : i + 4])[0]  # Big-endian float
                         if 0.0 <= val <= 1.0:
                             floats.append(val)
                             if len(floats) >= 3:
@@ -98,11 +99,12 @@ class TerminalAppParser:
             return ("monospace", 13)
 
         try:
-            data_str = data.decode('latin1', errors='ignore')
+            data_str = data.decode("latin1", errors="ignore")
 
             # Look for font size (usually a small float like 11.0, 12.0, etc.)
             import re
-            size_match = re.search(r'([0-9]{1,2}\.[0-9])', data_str)
+
+            size_match = re.search(r"([0-9]{1,2}\.[0-9])", data_str)
             font_size = 13
             if size_match:
                 try:
@@ -112,7 +114,7 @@ class TerminalAppParser:
 
             # Font family is harder to extract reliably
             # Common fonts: Menlo, Monaco, SF Mono
-            for font in ['Menlo', 'Monaco', 'SF Mono', 'Courier']:
+            for font in ["Menlo", "Monaco", "SF Mono", "Courier"]:
                 if font in data_str:
                     return (font, font_size)
 
@@ -134,7 +136,7 @@ class TerminalAppParser:
 
         try:
             # Read plist file
-            with open(self.config_path, 'rb') as f:
+            with open(self.config_path, "rb") as f:
                 plist_data = plistlib.load(f)
 
             # Get default profile name
@@ -144,16 +146,14 @@ class TerminalAppParser:
             profiles = plist_data.get("Window Settings", {})
 
             if default_profile_name not in profiles:
-                print(f"[Terminal.app] Default profile '{default_profile_name}' not found, using default theme")
+                print(
+                    f"[Terminal.app] Default profile '{default_profile_name}' not found, using default theme"
+                )
                 return get_default_theme()
 
             profile = profiles[default_profile_name]
 
-            theme = {
-                "colors": {},
-                "font": "monospace",
-                "fontSize": 13
-            }
+            theme = {"colors": {}, "font": "monospace", "fontSize": 13}
 
             # Color mapping
             color_keys = {
@@ -200,7 +200,9 @@ class TerminalAppParser:
                 theme["font"] = font_family
                 theme["fontSize"] = font_size
 
-            print(f"[Terminal.app] Loaded theme from profile '{default_profile_name}' (parsed {parsed_colors} colors)")
+            print(
+                f"[Terminal.app] Loaded theme from profile '{default_profile_name}' (parsed {parsed_colors} colors)"
+            )
             return theme
 
         except Exception as e:

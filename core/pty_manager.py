@@ -153,9 +153,7 @@ class PTYManager:
 
         # Check restart rate limit
         if not self._can_restart():
-            raise RuntimeError(
-                f"Too many restarts ({self.max_restarts} in {self.restart_window}s)"
-            )
+            raise RuntimeError(f"Too many restarts ({self.max_restarts} in {self.restart_window}s)")
 
         try:
             # Build full command
@@ -166,7 +164,7 @@ class PTYManager:
             # Spawn with pexpect
             self.process = pexpect.spawn(
                 full_command,
-                encoding='utf-8',
+                encoding="utf-8",
                 echo=False,
                 timeout=None,
             )
@@ -210,7 +208,9 @@ class PTYManager:
                         should_pause = self.flow_control.add_bytes(len(output))
 
                         if should_pause:
-                            print(f"[PTY] Flow control paused at {self.flow_control.buffer_size} bytes")
+                            print(
+                                f"[PTY] Flow control paused at {self.flow_control.buffer_size} bytes"
+                            )
 
                         # Put output in queue for consumers
                         await self._output_queue.put(output)
@@ -282,13 +282,13 @@ class PTYManager:
         try:
             char_lower = char.lower()
 
-            if char_lower == 'c':
+            if char_lower == "c":
                 self.process.sendintr()
-            elif char_lower == 'd':
+            elif char_lower == "d":
                 self.process.sendeof()
             else:
                 # Send as control character (Ctrl+A = 1, Ctrl+B = 2, etc.)
-                control_char = chr(ord(char_lower) - ord('a') + 1)
+                control_char = chr(ord(char_lower) - ord("a") + 1)
                 self.process.send(control_char)
 
         except Exception as e:
@@ -309,10 +309,10 @@ class PTYManager:
             output = await asyncio.wait_for(self._output_queue.get(), timeout=timeout)
             if output is None:
                 # End of stream
-                return b''
-            return output.encode('utf-8') if isinstance(output, str) else output
+                return b""
+            return output.encode("utf-8") if isinstance(output, str) else output
         except asyncio.TimeoutError:
-            return b''
+            return b""
 
     def notify_bytes_sent(self, count: int) -> None:
         """
@@ -369,11 +369,7 @@ class PTYManager:
     @property
     def is_alive(self) -> bool:
         """Check if Claude process is still running."""
-        return (
-            self.process is not None
-            and self.process.isalive()
-            and self._running
-        )
+        return self.process is not None and self.process.isalive() and self._running
 
     @property
     def pid(self) -> int | None:

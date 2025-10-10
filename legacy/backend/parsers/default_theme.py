@@ -3,8 +3,7 @@ Default terminal theme for Claude-onTheGo
 Used when no terminal config is detected
 """
 
-from typing import Dict, Any
-
+from typing import Any, Dict
 
 DEFAULT_THEME = {
     "foreground": "#ffffff",

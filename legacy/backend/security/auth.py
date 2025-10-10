@@ -4,6 +4,7 @@ Authentication manager for optional token-based auth.
 
 import secrets
 from typing import Optional
+
 from .validator import validate_auth_token
 
 

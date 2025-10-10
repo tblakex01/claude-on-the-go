@@ -5,8 +5,8 @@ Serves static files with security headers to prevent XSS attacks
 
 import http.server
 import socketserver
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 class SecureHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -17,7 +17,7 @@ class SecureHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         # Content Security Policy - only allow resources from specific sources
         # Allow cdn.jsdelivr.net for xterm.js library
         self.send_header(
-            'Content-Security-Policy',
+            "Content-Security-Policy",
             "default-src 'self'; "
             "script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; "
             "style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; "
@@ -26,25 +26,24 @@ class SecureHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             "font-src 'self'; "
             "object-src 'none'; "
             "base-uri 'self'; "
-            "form-action 'self';"
+            "form-action 'self';",
         )
 
         # Prevent clickjacking
-        self.send_header('X-Frame-Options', 'SAMEORIGIN')
+        self.send_header("X-Frame-Options", "SAMEORIGIN")
 
         # Prevent MIME sniffing
-        self.send_header('X-Content-Type-Options', 'nosniff')
+        self.send_header("X-Content-Type-Options", "nosniff")
 
         # Enable XSS protection
-        self.send_header('X-XSS-Protection', '1; mode=block')
+        self.send_header("X-XSS-Protection", "1; mode=block")
 
         # Referrer policy
-        self.send_header('Referrer-Policy', 'strict-origin-when-cross-origin')
+        self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
 
         # Permissions policy (disable unnecessary features)
         self.send_header(
-            'Permissions-Policy',
-            'geolocation=(), microphone=(), camera=(), payment=()'
+            "Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=()"
         )
 
         super().end_headers()

@@ -23,7 +23,7 @@ class Session:
     last_activity: float = field(default_factory=time.time)
     rows: int = 24
     cols: int = 80
-    history: bytes = b''
+    history: bytes = b""
     compressed: bool = False
 
     def is_expired(self, timeout_seconds: int = 3600) -> bool:
@@ -107,7 +107,8 @@ class SessionStore:
             return
 
         self._db = sqlite3.connect(self.db_path, check_same_thread=False)
-        self._db.execute("""
+        self._db.execute(
+            """
             CREATE TABLE IF NOT EXISTS sessions (
                 id TEXT PRIMARY KEY,
                 created_at REAL NOT NULL,
@@ -117,7 +118,8 @@ class SessionStore:
                 history BLOB,
                 compressed INTEGER NOT NULL
             )
-        """)
+        """
+        )
         self._db.commit()
         self._db_initialized = True
 
@@ -369,7 +371,7 @@ class SessionStore:
             last_activity=row[2],
             rows=row[3],
             cols=row[4],
-            history=row[5] or b'',
+            history=row[5] or b"",
             compressed=bool(row[6]),
         )
 

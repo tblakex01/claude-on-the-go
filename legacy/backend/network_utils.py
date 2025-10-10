@@ -5,9 +5,9 @@ Detects hostname, IP addresses, and generates QR codes for easy mobile connectio
 
 import socket
 import subprocess
-import qrcode
-from typing import Tuple, List
+from typing import List, Tuple
 
+import qrcode
 from security.sanitizer import redact_logs
 
 
@@ -16,11 +16,11 @@ def get_hostname() -> str:
     try:
         # Try to get the Bonjour hostname (macOS/Linux)
         result = subprocess.run(
-            ['scutil', '--get', 'LocalHostName'],
+            ["scutil", "--get", "LocalHostName"],
             capture_output=True,
             text=True,
             check=True,
-            timeout=2
+            timeout=2,
         )
         hostname = result.stdout.strip()
         return f"{hostname}.local"
@@ -46,7 +46,7 @@ def get_active_ips() -> List[str]:
         for addr_info in addr_infos:
             ip = addr_info[4][0]
             # Skip localhost and IPv6
-            if ip != '127.0.0.1' and ':' not in ip:
+            if ip != "127.0.0.1" and ":" not in ip:
                 if ip not in ips:
                     ips.append(ip)
 
@@ -56,15 +56,10 @@ def get_active_ips() -> List[str]:
     # Fallback: Try ifconfig parsing (Unix-like systems)
     if not ips:
         try:
-            result = subprocess.run(
-                ['ifconfig'],
-                capture_output=True,
-                text=True,
-                timeout=2
-            )
-            lines = result.stdout.split('\n')
+            result = subprocess.run(["ifconfig"], capture_output=True, text=True, timeout=2)
+            lines = result.stdout.split("\n")
             for line in lines:
-                if 'inet ' in line and '127.0.0.1' not in line:
+                if "inet " in line and "127.0.0.1" not in line:
                     parts = line.split()
                     if len(parts) >= 2:
                         ip = parts[1]
@@ -105,10 +100,10 @@ def generate_qr_code(url: str, size: int = 3) -> str:
             line = []
             for cell in row:
                 # Use full block for filled cells, space for empty
-                line.append('██' if cell else '  ')
-            ascii_qr.append(''.join(line))
+                line.append("██" if cell else "  ")
+            ascii_qr.append("".join(line))
 
-        return '\n'.join(ascii_qr)
+        return "\n".join(ascii_qr)
 
     except Exception as e:
         print(f"[QR] Error generating QR code: {e}")
@@ -171,7 +166,7 @@ def print_startup_banner(frontend_port: int = 8001):
     banner.append("")
 
     # Add QR code
-    qr_lines = qr_code.split('\n')
+    qr_lines = qr_code.split("\n")
     for line in qr_lines:
         banner.append(f"   {line}")
 

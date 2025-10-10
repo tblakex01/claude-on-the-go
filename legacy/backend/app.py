@@ -5,25 +5,18 @@ Secure WebSockets with rate limiting, validation, and message batching
 
 import asyncio
 import json
-from typing import Set, Optional
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, status
-from fastapi.middleware.cors import CORSMiddleware
 import time
+from typing import Optional, Set
 
 from claude_wrapper import ClaudeWrapper
-from parsers import parse_terminal_config
-from network_utils import print_startup_banner
-from config import Config
-from session_manager import SessionManager
 from clipboard_manager import ClipboardManager
-from security import (
-    RateLimiter,
-    validate_message,
-    sanitize_input,
-    redact_logs,
-    AuthManager,
-)
-
+from config import Config
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, status
+from fastapi.middleware.cors import CORSMiddleware
+from network_utils import print_startup_banner
+from parsers import parse_terminal_config
+from security import AuthManager, RateLimiter, redact_logs, sanitize_input, validate_message
+from session_manager import SessionManager
 
 app = FastAPI(title="Claude-onTheGo Backend")
 
@@ -101,9 +94,11 @@ class ConnectionManager:
         self.session_manager = SessionManager(session_timeout=3600)  # 1 hour
 
         # Clipboard sync
-        self.clipboard_manager = ClipboardManager(
-            sync_interval=Config.CLIPBOARD_SYNC_INTERVAL
-        ) if Config.ENABLE_CLIPBOARD_SYNC else None
+        self.clipboard_manager = (
+            ClipboardManager(sync_interval=Config.CLIPBOARD_SYNC_INTERVAL)
+            if Config.ENABLE_CLIPBOARD_SYNC
+            else None
+        )
 
         # Security components
         self.rate_limiter = RateLimiter(
@@ -119,7 +114,12 @@ class ConnectionManager:
         """Log with optional redaction"""
         print(redact_logs(message, enabled=Config.LOG_REDACTION))
 
-    async def connect(self, websocket: WebSocket, auth_token: Optional[str] = None, session_id: Optional[str] = None):
+    async def connect(
+        self,
+        websocket: WebSocket,
+        auth_token: Optional[str] = None,
+        session_id: Optional[str] = None,
+    ):
         """Handle new WebSocket connection with authentication and security
 
         SINGLE-USER MODE: Automatically closes all existing connections before
@@ -130,7 +130,9 @@ class ConnectionManager:
         # Check authentication if enabled
         if not self.auth_manager.verify(auth_token):
             self._log("[WS] Authentication failed")
-            await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Authentication required")
+            await websocket.close(
+                code=status.WS_1008_POLICY_VIOLATION, reason="Authentication required"
+            )
             return
 
         self._log("[WS] Starting connection...")
@@ -145,7 +147,9 @@ class ConnectionManager:
 
         # SINGLE-USER GUARD: Close all existing connections
         if self.active_connections:
-            self._log(f"[WS] Single-user mode: Closing {len(self.active_connections)} existing connection(s)")
+            self._log(
+                f"[WS] Single-user mode: Closing {len(self.active_connections)} existing connection(s)"
+            )
             for old_ws in list(self.active_connections):
                 try:
                     await old_ws.close(code=1000, reason="New connection established")
@@ -196,10 +200,9 @@ class ConnectionManager:
 
             # Create new session
             self.current_session_id = self.session_manager.create_session(self.claude)
-            await self._send_json(websocket, {
-                "type": "session",
-                "session_id": self.current_session_id
-            })
+            await self._send_json(
+                websocket, {"type": "session", "session_id": self.current_session_id}
+            )
 
         # Start flush task if not running
         if self.flush_task is None or self.flush_task.done():
@@ -298,7 +301,7 @@ class ConnectionManager:
         """Send JSON as binary frame"""
         try:
             # Encode to JSON bytes
-            json_bytes = json.dumps(data).encode('utf-8')
+            json_bytes = json.dumps(data).encode("utf-8")
             # Send as binary frame for efficiency
             await websocket.send_bytes(json_bytes)
         except Exception as e:
@@ -335,10 +338,7 @@ class ConnectionManager:
             return
 
         try:
-            msg = {
-                "type": "clipboard_sync",
-                "text": text
-            }
+            msg = {"type": "clipboard_sync", "text": text}
             await self._send_json(self.current_connection, msg)
             self._log(f"[CLIPBOARD] Synced to remote ({len(text)} chars)")
         except Exception as e:
@@ -395,9 +395,7 @@ async def websocket_endpoint(websocket: WebSocket):
             data = await websocket.receive_bytes()
 
             # Rate limiting check
-            allowed, reason = manager.rate_limiter.check_rate_limit(
-                str(connection_id), len(data)
-            )
+            allowed, reason = manager.rate_limiter.check_rate_limit(str(connection_id), len(data))
             if not allowed:
                 manager._log(f"[WS] Rate limit exceeded: {reason}")
                 await websocket.send_json({"type": "error", "message": reason})
@@ -405,7 +403,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
             # Decode JSON
             try:
-                message = json.loads(data.decode('utf-8'))
+                message = json.loads(data.decode("utf-8"))
             except json.JSONDecodeError:
                 # Try as text frame fallback
                 try:

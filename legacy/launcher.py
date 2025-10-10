@@ -5,26 +5,27 @@ Manages backend and frontend processes with beautiful output and live monitoring
 """
 
 import os
-import sys
-import subprocess
-import time
-import signal
 import select
+import signal
+import subprocess
+import sys
+import time
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
 
 
 class Colors:
     """ANSI color codes"""
-    RED = '\033[0;31m'
-    GREEN = '\033[0;32m'
-    YELLOW = '\033[1;33m'
-    BLUE = '\033[0;34m'
-    MAGENTA = '\033[0;35m'
-    CYAN = '\033[0;36m'
-    WHITE = '\033[1;37m'
-    GRAY = '\033[0;90m'
-    NC = '\033[0m'  # No Color
+
+    RED = "\033[0;31m"
+    GREEN = "\033[0;32m"
+    YELLOW = "\033[1;33m"
+    BLUE = "\033[0;34m"
+    MAGENTA = "\033[0;35m"
+    CYAN = "\033[0;36m"
+    WHITE = "\033[1;37m"
+    GRAY = "\033[0;90m"
+    NC = "\033[0m"  # No Color
 
 
 class ProcessManager:
@@ -78,7 +79,7 @@ class ProcessManager:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
-            bufsize=1
+            bufsize=1,
         )
 
         # Wait and capture startup output (including banner)
@@ -121,7 +122,9 @@ class ProcessManager:
                             time.sleep(0.5)
                             # Capture any remaining lines
                             while True:
-                                ready, _, _ = select.select([self.backend_process.stdout], [], [], 0.1)
+                                ready, _, _ = select.select(
+                                    [self.backend_process.stdout], [], [], 0.1
+                                )
                                 if ready:
                                     extra_line = self.backend_process.stdout.readline()
                                     if extra_line:
@@ -144,7 +147,11 @@ class ProcessManager:
                 if "FastAPI docs" in line or "@app.on_event" in line:
                     continue
                 # Skip uvicorn INFO logs but keep APP logs with important info
-                if "INFO:" in line and "Started server" not in line and "Uvicorn running" not in line:
+                if (
+                    "INFO:" in line
+                    and "Started server" not in line
+                    and "Uvicorn running" not in line
+                ):
                     continue
                 # Skip [APP] prefix lines except the ones with WebSocket info
                 if "[APP]" in line and "WebSocket" not in line:
@@ -188,7 +195,7 @@ class ProcessManager:
             stdout=self.frontend_log,
             stderr=subprocess.STDOUT,
             text=True,
-            bufsize=1
+            bufsize=1,
         )
 
         print(f"   {Colors.GRAY}Frontend PID: {self.frontend_process.pid}{Colors.NC}\n")

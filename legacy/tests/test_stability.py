@@ -4,12 +4,13 @@ Tests long-running sessions for memory leaks, connection stability, and performa
 """
 
 import asyncio
-import time
-import psutil
-import statistics
-from typing import List, Dict
-import websockets
 import json
+import statistics
+import time
+from typing import Dict, List
+
+import psutil
+import websockets
 
 
 class StabilityMetrics:
@@ -41,10 +42,7 @@ class StabilityMetrics:
 
     def record_error(self, error: str):
         """Record an error"""
-        self.errors.append({
-            "time": time.time() - self.start_time,
-            "error": error
-        })
+        self.errors.append({"time": time.time() - self.start_time, "error": error})
 
     def record_system_metrics(self, process: psutil.Process):
         """Record CPU and memory usage"""
@@ -61,33 +59,41 @@ class StabilityMetrics:
                 "sent": self.messages_sent,
                 "received": self.messages_received,
                 "total": self.messages_sent + self.messages_received,
-                "rate_per_minute": (self.messages_sent + self.messages_received) / (duration / 60)
+                "rate_per_minute": (self.messages_sent + self.messages_received) / (duration / 60),
             },
             "data": {
                 "sent_mb": self.bytes_sent / 1024 / 1024,
                 "received_mb": self.bytes_received / 1024 / 1024,
-                "total_mb": (self.bytes_sent + self.bytes_received) / 1024 / 1024
+                "total_mb": (self.bytes_sent + self.bytes_received) / 1024 / 1024,
             },
             "latency_ms": {
                 "min": min(self.latencies) if self.latencies else 0,
                 "max": max(self.latencies) if self.latencies else 0,
                 "avg": statistics.mean(self.latencies) if self.latencies else 0,
-                "p95": statistics.quantiles(self.latencies, n=20)[18] if len(self.latencies) > 20 else 0
+                "p95": (
+                    statistics.quantiles(self.latencies, n=20)[18]
+                    if len(self.latencies) > 20
+                    else 0
+                ),
             },
             "memory_mb": {
                 "min": min(self.memory_samples) if self.memory_samples else 0,
                 "max": max(self.memory_samples) if self.memory_samples else 0,
                 "avg": statistics.mean(self.memory_samples) if self.memory_samples else 0,
-                "growth": (self.memory_samples[-1] - self.memory_samples[0]) if len(self.memory_samples) > 1 else 0
+                "growth": (
+                    (self.memory_samples[-1] - self.memory_samples[0])
+                    if len(self.memory_samples) > 1
+                    else 0
+                ),
             },
             "cpu_percent": {
                 "min": min(self.cpu_samples) if self.cpu_samples else 0,
                 "max": max(self.cpu_samples) if self.cpu_samples else 0,
-                "avg": statistics.mean(self.cpu_samples) if self.cpu_samples else 0
+                "avg": statistics.mean(self.cpu_samples) if self.cpu_samples else 0,
             },
             "errors": len(self.errors),
             "reconnections": self.reconnections,
-            "stability_score": self._calculate_stability_score()
+            "stability_score": self._calculate_stability_score(),
         }
 
     def _calculate_stability_score(self) -> float:
@@ -133,10 +139,10 @@ async def test_60_minute_session(backend_url: str = "ws://localhost:8000/ws"):
 
     # Find backend process for monitoring
     backend_process = None
-    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+    for proc in psutil.process_iter(["pid", "name", "cmdline"]):
         try:
-            if 'python' in proc.info['name'].lower() and 'app.py' in ' '.join(proc.info['cmdline']):
-                backend_process = psutil.Process(proc.info['pid'])
+            if "python" in proc.info["name"].lower() and "app.py" in " ".join(proc.info["cmdline"]):
+                backend_process = psutil.Process(proc.info["pid"])
                 print(f"✓ Found backend process (PID: {backend_process.pid})")
                 break
         except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -171,12 +177,9 @@ async def test_60_minute_session(backend_url: str = "ws://localhost:8000/ws"):
                 # Send periodic test message
                 if now >= next_message:
                     message_count += 1
-                    test_msg = {
-                        "type": "input",
-                        "text": f"Test message {message_count}\r"
-                    }
+                    test_msg = {"type": "input", "text": f"Test message {message_count}\r"}
                     msg_json = json.dumps(test_msg)
-                    msg_bytes = msg_json.encode('utf-8')
+                    msg_bytes = msg_json.encode("utf-8")
 
                     send_start = time.time()
                     await ws.send(msg_bytes)
@@ -190,9 +193,13 @@ async def test_60_minute_session(backend_url: str = "ws://localhost:8000/ws"):
 
                         # Show REAL data every 10 messages (prove it's not hardcoded!)
                         if message_count % 10 == 0:
-                            print(f"[LIVE] Msg #{message_count}: {latency:.2f}ms latency, {len(response)} bytes received")
+                            print(
+                                f"[LIVE] Msg #{message_count}: {latency:.2f}ms latency, {len(response)} bytes received"
+                            )
                             if backend_process and metrics.memory_samples:
-                                print(f"       Memory: {metrics.memory_samples[-1]:.1f}MB, CPU: {metrics.cpu_samples[-1]:.1f}%")
+                                print(
+                                    f"       Memory: {metrics.memory_samples[-1]:.1f}MB, CPU: {metrics.cpu_samples[-1]:.1f}%"
+                                )
                     except asyncio.TimeoutError:
                         print(f"[ERROR] Message {message_count} timed out!")
                         metrics.record_error("Response timeout")
@@ -206,7 +213,9 @@ async def test_60_minute_session(backend_url: str = "ws://localhost:8000/ws"):
                         # Show REAL system metrics as they're collected
                         mem_mb = metrics.memory_samples[-1]
                         cpu_pct = metrics.cpu_samples[-1]
-                        print(f"[METRICS] Backend process: {mem_mb:.1f}MB RAM, {cpu_pct:.1f}% CPU (LIVE DATA)")
+                        print(
+                            f"[METRICS] Backend process: {mem_mb:.1f}MB RAM, {cpu_pct:.1f}% CPU (LIVE DATA)"
+                        )
                     except psutil.NoSuchProcess:
                         print("[ERROR] Backend process died!")
                         metrics.record_error("Backend process died")
@@ -217,9 +226,11 @@ async def test_60_minute_session(backend_url: str = "ws://localhost:8000/ws"):
                 if now - last_progress >= 300:
                     elapsed_min = (now - start) / 60
                     progress_pct = (now - start) / test_duration * 100
-                    print(f"[{elapsed_min:.1f} min] Progress: {progress_pct:.1f}% - "
-                          f"Messages: {metrics.messages_sent}/{metrics.messages_received}, "
-                          f"Errors: {len(metrics.errors)}")
+                    print(
+                        f"[{elapsed_min:.1f} min] Progress: {progress_pct:.1f}% - "
+                        f"Messages: {metrics.messages_sent}/{metrics.messages_received}, "
+                        f"Errors: {len(metrics.errors)}"
+                    )
                     last_progress = now
 
                 await asyncio.sleep(0.1)
@@ -283,25 +294,25 @@ async def test_60_minute_session(backend_url: str = "ws://localhost:8000/ws"):
     print("✅ PASS/FAIL CRITERIA")
     print("-" * 60)
 
-    if summary['stability_score'] >= 90:
+    if summary["stability_score"] >= 90:
         print("✓ Stability score >= 90")
     else:
         print(f"✗ Stability score < 90 (got {summary['stability_score']:.1f})")
         passed = False
 
-    if summary['latency_ms']['avg'] < 100:
+    if summary["latency_ms"]["avg"] < 100:
         print("✓ Average latency < 100ms")
     else:
         print(f"✗ Average latency >= 100ms (got {summary['latency_ms']['avg']:.2f}ms)")
         passed = False
 
-    if summary['memory_mb']['growth'] < 100:
+    if summary["memory_mb"]["growth"] < 100:
         print("✓ Memory growth < 100MB")
     else:
         print(f"✗ Memory growth >= 100MB (got {summary['memory_mb']['growth']:.2f}MB)")
         passed = False
 
-    if summary['errors'] < 10:
+    if summary["errors"] < 10:
         print("✓ Errors < 10")
     else:
         print(f"✗ Errors >= 10 (got {summary['errors']})")
@@ -330,4 +341,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\nTest failed with error: {e}")
         import traceback
+
         traceback.print_exc()

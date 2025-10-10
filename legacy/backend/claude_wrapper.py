@@ -3,11 +3,12 @@ Claude process wrapper with pexpect and watermark flow control
 Spawns claude CLI and manages output with buffer thresholds
 """
 
-import pexpect
 import asyncio
 import time
-from typing import Optional, Callable, Awaitable
 from collections import deque
+from typing import Awaitable, Callable, Optional
+
+import pexpect
 
 
 class FlowControl:
@@ -123,7 +124,7 @@ class ClaudeWrapper:
         # Spawn with pexpect
         self.process = pexpect.spawn(
             self.command,
-            encoding='utf-8',
+            encoding="utf-8",
             echo=False,
             timeout=None,
         )
@@ -144,9 +145,7 @@ class ClaudeWrapper:
         self.output_callback = output_callback
 
         if not self.can_restart():
-            raise RuntimeError(
-                f"Too many restarts ({self.max_restarts} in {self.restart_window}s)"
-            )
+            raise RuntimeError(f"Too many restarts ({self.max_restarts} in {self.restart_window}s)")
 
         self.spawn()
         self.record_restart()
@@ -226,13 +225,13 @@ class ClaudeWrapper:
         """
         if self.process is not None and self.running:
             try:
-                if char.lower() == 'c':
+                if char.lower() == "c":
                     self.process.sendintr()
-                elif char.lower() == 'd':
+                elif char.lower() == "d":
                     self.process.sendeof()
                 else:
                     # Send as control character
-                    control_char = chr(ord(char.lower()) - ord('a') + 1)
+                    control_char = chr(ord(char.lower()) - ord("a") + 1)
                     self.process.send(control_char)
             except Exception as e:
                 print(f"[CLAUDE] Failed to send control: {e}")

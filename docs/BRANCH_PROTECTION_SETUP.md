@@ -281,11 +281,15 @@ git push origin main
 
 - [x] **DONE:** Created GitHub Actions CI/CD workflows
 - [x] **DONE:** Documented branch protection setup process
+- [x] **DONE:** Hardened CI with caching, timeouts, and strict checks
+- [x] **DONE:** Added security automation (Dependabot, CodeQL, etc.)
 - [ ] **TODO:** Configure branch protection on GitHub (manual setup required)
+  - [ ] Enable "Require status checks to pass"
+  - [ ] Add status checks: automated_test, code-quality, commit-message-check
+  - [ ] Enable "Include administrators" ← CRITICAL!
 - [ ] **TODO:** Test direct push to main (should fail)
 - [ ] **TODO:** Test PR workflow (should succeed)
-- [ ] **TODO:** Enable status checks after first PR merges
-- [ ] **TODO:** Document any exceptions to the rule
+- [ ] **TODO:** Optional: Set up GPG commit signing (see docs/GPG_SIGNING_GUIDE.md)
 
 ---
 
@@ -329,6 +333,8 @@ Once branch protection is active, mark these done:
 5. **Use descriptive PR titles** - They show up in `git log` on main branch
 
 6. **Celebrate the friction** - That "annoying" PR step is saving you from bugs
+
+7. **GPG signing is optional** - See [docs/GPG_SIGNING_GUIDE.md](GPG_SIGNING_GUIDE.md) for setup. Nice to have but not required for solo projects.
 
 ---
 

@@ -5,18 +5,18 @@ Detects which terminal is installed and loads appropriate config parser
 
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
+
+from .alacritty_parser import AlacrittyParser
 
 # Import all terminal parsers
 from .ghostty_parser import GhosttyParser
-from .iterm2_parser import ITerm2Parser
-from .alacritty_parser import AlacrittyParser
-from .kitty_parser import KittyParser
-from .warp_parser import WarpParser
 from .hyper_parser import HyperParser
+from .iterm2_parser import ITerm2Parser
+from .kitty_parser import KittyParser
 from .terminal_app_parser import TerminalAppParser
+from .warp_parser import WarpParser
 from .windows_terminal_parser import WindowsTerminalParser
-
 
 # Terminal detection patterns
 TERMINALS = [
@@ -65,7 +65,9 @@ TERMINALS = [
     },
     {
         "name": "Windows Terminal",
-        "config_path": os.path.expandvars("%LOCALAPPDATA%\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json"),
+        "config_path": os.path.expandvars(
+            "%LOCALAPPDATA%\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json"
+        ),
         "parser": WindowsTerminalParser,
         "priority": 8,
     },
@@ -86,24 +88,18 @@ def detect_terminal() -> Optional[Tuple[str, Path, type]]:
 
         # Check main path
         if config_path.exists():
-            detected.append((
-                terminal["name"],
-                config_path,
-                terminal["parser"],
-                terminal["priority"]
-            ))
+            detected.append(
+                (terminal["name"], config_path, terminal["parser"], terminal["priority"])
+            )
             continue
 
         # Check alternative path if exists
         if "alt_path" in terminal:
             alt_path = Path(os.path.expanduser(terminal["alt_path"]))
             if alt_path.exists():
-                detected.append((
-                    terminal["name"],
-                    alt_path,
-                    terminal["parser"],
-                    terminal["priority"]
-                ))
+                detected.append(
+                    (terminal["name"], alt_path, terminal["parser"], terminal["priority"])
+                )
 
     if not detected:
         return None
@@ -151,6 +147,7 @@ def parse_terminal_config(config_path: Optional[str] = None) -> Dict[str, Any]:
         else:
             # Unknown terminal, use default
             from .default_theme import get_default_theme
+
             print(f"[TERMINAL] Unknown config format, using default theme")
             return get_default_theme()
 
@@ -166,5 +163,6 @@ def parse_terminal_config(config_path: Optional[str] = None) -> Dict[str, Any]:
 
     # No terminal detected, use default theme
     from .default_theme import get_default_theme
+
     print("[TERMINAL] No terminal config detected, using default theme")
     return get_default_theme()

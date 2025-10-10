@@ -10,7 +10,7 @@ All modules use async/await and are designed to work with any web framework.
 """
 
 from .config import Config, config
-from .pty_manager import PTYManager, FlowControl
+from .pty_manager import FlowControl, PTYManager
 from .session_store import Session, SessionStore
 
 __version__ = "0.1.0"

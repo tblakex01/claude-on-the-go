@@ -6,9 +6,15 @@ on:
   push:
     branches: [ main ]
 
+# Cancel in-progress runs when new commit pushed to same PR/branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   automated_test:  # This name matches the required status check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -18,19 +24,22 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
+        timeout-minutes: 5
         run: |
           python -m pip install --upgrade pip
           pip install pytest pytest-asyncio mypy black isort
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run tests
-        continue-on-error: true
+        timeout-minutes: 5
         run: |
           if [ -d "tests" ] || [ -d "legacy/tests" ]; then
             if pytest -q --co -q &> /dev/null; then
-              pytest -v || echo "⚠️  Some tests failed (non-blocking during initial setup)"
+              pytest --tb=short --strict-markers
             else
               echo "⚠️  No tests found, skipping"
             fi
@@ -39,19 +48,19 @@ jobs:
           fi
 
       - name: Type checking
-        continue-on-error: true
+        timeout-minutes: 3
         run: |
           if ls core/*.py server/*.py integrations/*.py 2>/dev/null; then
-            mypy core/ server/ integrations/ || echo "⚠️  Type errors found (non-blocking for now)"
+            mypy core/ server/ integrations/
           else
             echo "⚠️  No Python files to check"
           fi
 
       - name: Code formatting check
-        continue-on-error: true
+        timeout-minutes: 2
         run: |
-          black --check --line-length 100 . || echo "⚠️  Formatting issues (non-blocking for now)"
-          isort --check . || echo "⚠️  Import sorting issues (non-blocking for now)"
+          black --check --line-length 100 .
+          isort --check .
 
       - name: Summary
         if: always()
