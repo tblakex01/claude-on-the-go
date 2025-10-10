@@ -136,26 +136,36 @@ To be transparent, Claude-onTheGo does **NOT** currently include:
 - End-to-end encryption (uses plain WebSockets)
 - Built-in HTTPS support (use a reverse proxy)
 - User authentication beyond simple tokens
-- Session persistence across restarts
 - Audit logging of all commands
 - Sandboxing of the claude process
+
+**What we DO include:**
+- Session persistence across reconnections (UUID-based, 1-hour timeout)
+- Bidirectional clipboard synchronization
+- Rate limiting and input validation
 
 **For local network use, these are not necessary.** For internet exposure, use a reverse proxy with HTTPS and strong authentication.
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please **DO NOT** open a public issue.
+If you discover a security vulnerability, please report it responsibly:
 
-Instead, please email us at:
-**[YOUR_EMAIL]@example.com**
+**Option 1: GitHub Security Advisories (Preferred)**
+1. Go to the repository's Security tab
+2. Click "Report a vulnerability"
+3. Fill out the private vulnerability report
 
-Include:
+**Option 2: GitHub Issues**
+- Create a new issue and mark it as "Security"
+- We'll move it to a private discussion if needed
+
+**Please include:**
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
 - Suggested fix (if you have one)
 
-You can expect:
+**You can expect:**
 - Response within 48 hours
 - Regular updates on our progress
 - Credit in the security advisory (unless you prefer anonymity)
@@ -243,9 +253,9 @@ Subscribe to the repository to get notified of security releases.
 
 ## Questions?
 
-Not sure if something is a security issue? Email us anyway - we'd rather hear about a non-issue than miss a real vulnerability.
+Not sure if something is a security issue? Report it anyway - we'd rather hear about a non-issue than miss a real vulnerability.
 
 ---
 
-**Last updated**: [DATE]
+**Last updated**: January 2025
 **Version**: 1.0.0

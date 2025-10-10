@@ -12,14 +12,14 @@ Claude-onTheGo lets you use the [Claude Code CLI](https://claude.ai/download) fr
 - Coding from bed without lugging your laptop
 - Quick fixes while away from your desk
 - Showing off Claude to friends on your phone
-- Actually using that sweet terminal theme you spent hours configuring
+- Actually using that sweet terminal theme you spent hours configuring😅
 
 ## Quick Start
 
 ### One-Command Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/claude-on-the-go.git
+git clone https://github.com/your-username/claude-on-the-go.git
 cd claude-on-the-go
 ./install.sh
 ```
