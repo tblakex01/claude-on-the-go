@@ -1,0 +1,55 @@
+# <type>(<scope>): <short description>
+#
+# [optional body - explain WHAT and WHY, not HOW]
+#
+# [optional footer - reference issues, breaking changes]
+#
+# ──────────────────────────────────────────────────────────────────
+# Types:
+#   feat:     New feature (triggers minor version bump)
+#   fix:      Bug fix (triggers patch version bump)
+#   docs:     Documentation only
+#   style:    Code style (formatting, missing semicolons, etc)
+#   refactor: Code change that neither fixes bug nor adds feature
+#   perf:     Performance improvement
+#   test:     Adding or updating tests
+#   chore:    Maintenance (deps, build, CI, etc)
+#
+# Scopes:
+#   core        - PTY manager, session store, config
+#   server      - FastAPI WebSocket + REST API
+#   client      - Web client, PWA
+#   integrations - Notifications, Tailscale, QR codes
+#   cli         - Command-line interface
+#   legacy      - v1.0 frozen code
+#
+# Rules:
+#   1. First line ≤ 72 characters (GitHub UI truncates)
+#   2. Use imperative mood ("add" not "added" or "adds")
+#   3. Don't end first line with period
+#   4. Separate subject from body with blank line
+#   5. Wrap body at 72 characters
+#   6. Use body to explain what and why, not how
+#
+# Examples:
+#
+#   feat(server): add REST endpoint for session management
+#
+#   fix(core): resolve memory leak in PTY reader
+#
+#   The background task wasn't being properly cancelled when the
+#   session closed, causing memory to accumulate over time.
+#
+#   Fixes #42
+#
+#   docs: update installation instructions for Windows
+#
+#   refactor(core)!: change config from dict to pydantic model
+#
+#   BREAKING CHANGE: Config is now a pydantic BaseSettings class
+#   instead of a plain dict. Update imports accordingly.
+#
+# ──────────────────────────────────────────────────────────────────
+# Remember: Future you (and contributors) will thank you for clear
+# commit messages. Write them like you're explaining to a teammate.
+# ──────────────────────────────────────────────────────────────────

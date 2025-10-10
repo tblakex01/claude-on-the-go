@@ -82,17 +82,21 @@ Key directories:
 
 ## Making Changes
 
-We follow a standard fork and pull request workflow:
+**⚠️ IMPORTANT: Never commit directly to `main` branch!**
+
+We follow a feature branch workflow with pull requests. See [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md) for detailed guide.
 
 ### Workflow
 
 1. **Fork** the repository on GitHub
-2. **Branch** from `main` with a descriptive name
-3. **Code** your changes following our style guide
-4. **Test** your changes thoroughly
-5. **Commit** with conventional commit messages
-6. **Push** to your fork
-7. **PR** back to the main repository
+2. **Clone** your fork locally
+3. **Branch** from `main` with a descriptive name (e.g., `feature/add-rest-api`)
+4. **Code** your changes following our style guide
+5. **Test** your changes thoroughly (pre-commit hook runs automatically)
+6. **Commit** with conventional commit messages
+7. **Push** to your fork
+8. **PR** back to the main repository
+9. **Merge** after review (squash merge preferred)
 
 ### Branch Naming
 
