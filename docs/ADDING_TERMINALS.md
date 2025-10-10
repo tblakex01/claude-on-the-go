@@ -1,6 +1,6 @@
 # Adding Terminal Support
 
-This guide is designed for AI assistants (like Claude) to implement terminal config parsers for Claude-onTheGo.
+This guide explains how to implement terminal config parsers for Claude-onTheGo.
 
 ## Overview
 
