@@ -10,25 +10,25 @@ Claude-onTheGo is designed with security as a top priority. This document outlin
 
 ## Security Features
 
-### Built-In Protections
+### 🛡️ Built-In Protections
 
-1. **Rate Limiting**
+1. **🚦 Rate Limiting**
    - 10 messages per second per connection
    - 100KB data per second per connection
    - Token bucket algorithm with burst protection
 
-2. **Input Validation**
+2. **✅ Input Validation**
    - Maximum message size: 10KB
    - Terminal dimensions: 1-500 rows/cols
    - Null byte detection and removal
    - Type checking for all inputs
 
-3. **Output Sanitization**
+3. **🔐 Output Sanitization**
    - Log redaction for IPs, tokens, emails
    - Configurable via `LOG_REDACTION` env variable
    - Removes sensitive data before logging
 
-4. **HTTP Security Headers**
+4. **🛡️ HTTP Security Headers**
    - Content Security Policy (CSP)
    - X-Frame-Options: SAMEORIGIN
    - X-Content-Type-Options: nosniff
@@ -36,12 +36,12 @@ Claude-onTheGo is designed with security as a top priority. This document outlin
    - Referrer-Policy: strict-origin-when-cross-origin
    - Permissions-Policy: restrictive
 
-5. **Authentication** (Optional)
+5. **🎫 Authentication** (Optional)
    - Token-based authentication
    - Constant-time comparison (prevents timing attacks)
    - Environment-based configuration
 
-6. **Network Security**
+6. **🌐 Network Security**
    - Local network only by default
    - No hardcoded IPs or credentials
    - Environment-based configuration
@@ -58,33 +58,33 @@ By default, Claude-onTheGo only allows **one active connection at a time**. When
 
 To disable: Set `MAX_CONNECTIONS=0` in `.env` (not recommended)
 
-## Security Best Practices
+## 🎯 Security Best Practices
 
-### For Local Network Use (Default)
+### 🏠 For Local Network Use (Default)
 
-1. **Use on trusted WiFi networks only**
-   - Your home network
-   - Your phone's personal hotspot
-   - Corporate networks you trust
+1. **✅ Use on trusted WiFi networks only**
+   - 🏡 Your home network
+   - 📱 Your phone's personal hotspot
+   - 🏢 Corporate networks you trust
 
-2. **Keep dependencies updated**
+2. **🔄 Keep dependencies updated**
    ```bash
    pip install --upgrade -r requirements.txt
    ```
 
-3. **Run security checks regularly**
+3. **🔍 Run security checks regularly**
    ```bash
    safety check
    bandit -r backend/
    ```
 
-4. **Review logs for suspicious activity**
+4. **📝 Review logs for suspicious activity**
    ```bash
    grep "rate limit" backend.log
    grep "Invalid" backend.log
    ```
 
-### For Remote Access (Advanced)
+### 🌐 For Remote Access (Advanced)
 
 If you need to access Claude-onTheGo over the internet:
 

@@ -4,19 +4,19 @@
 
 Use Claude on your iPhone, Android, or any device with a browser - while your Mac does the heavy lifting. No cloud sync, no data leaks, just your local network keeping things fast and private.
 
-## What Is This?
+## 📱 What Is This?
 
 Claude-onTheGo lets you use the [Claude Code CLI](https://claude.ai/download) from your mobile device. Your Mac runs the `claude` process, and your phone displays the terminal over WiFi.
 
 **Perfect for:**
-- Coding from bed without lugging your laptop
-- Quick fixes while away from your desk
-- Showing off Claude to friends on your phone
-- Actually using that sweet terminal theme you spent hours configuring😅
+- 🛏️ Coding from bed without lugging your laptop
+- ⚡ Quick fixes while away from your desk
+- 🎉 Showing off Claude to friends on your phone
+- 🎨 Actually using that sweet terminal theme you spent hours configuring😅
 
-## Quick Start
+## 🚀 Quick Start
 
-### One-Command Installation
+### ⚙️ One-Command Installation
 
 ```bash
 git clone https://github.com/MatthewJamisonJS/claude-on-the-go.git
@@ -25,84 +25,84 @@ cd claude-on-the-go
 ```
 
 The installer will:
-- Check for Python 3 and Claude CLI
-- Create a virtual environment
-- Install dependencies
-- Run security checks
-- Create configuration file
+- ✅ Check for Python 3 and Claude CLI
+- 📦 Create a virtual environment
+- 🔌 Install dependencies
+- 🔒 Run security checks
+- ⚙️ Create configuration file
 
-### Launch
+### 🎬 Launch
 
 ```bash
 ./start.sh
 ```
 
-You'll see a beautiful QR code - scan it with your phone's camera and you're connected!
+📲 You'll see a beautiful QR code - scan it with your phone's camera and you're connected!
 
-## Requirements
+## 📋 Requirements
 
-**Mac/Linux:**
-- Python 3.8+
-- [Claude Code CLI](https://claude.ai/download) installed
-- Same WiFi network for Mac and phone
+**🖥️ Mac/Linux:**
+- 🐍 Python 3.8+
+- 🤖 [Claude Code CLI](https://claude.ai/download) installed
+- 📡 Same WiFi network for Mac and phone
 
-**Mobile Device:**
-- Any modern browser (Safari, Chrome, Firefox, etc.)
-- Same WiFi network as your Mac
+**📱 Mobile Device:**
+- 🌐 Any modern browser (Safari, Chrome, Firefox, etc.)
+- 📡 Same WiFi network as your Mac
 
-## Features
+## ✨ Features
 
-### Security First
-- Rate limiting to prevent DoS attacks (10 msg/sec, 100KB/sec)
-- Input validation and sanitization
-- Content Security Policy (CSP) headers
-- Log redaction for sensitive data
-- Optional token authentication
-- No hardcoded IPs or ports
+### 🔒 Security First
+- 🚦 Rate limiting to prevent DoS attacks (10 msg/sec, 100KB/sec)
+- ✅ Input validation and sanitization
+- 🛡️ Content Security Policy (CSP) headers
+- 🔐 Log redaction for sensitive data
+- 🎫 Optional token authentication
+- 🚫 No hardcoded IPs or ports
 
-### Session Persistence
-- Sessions survive disconnections and reconnect seamlessly
-- UUID-based session IDs with 1-hour timeout
-- Automatic session cleanup
-- Resume coding exactly where you left off
+### 💾 Session Persistence
+- 🔄 Sessions survive disconnections and reconnect seamlessly
+- 🆔 UUID-based session IDs with 1-hour timeout
+- 🧹 Automatic session cleanup
+- ⏮️ Resume coding exactly where you left off
 
-### Bidirectional Clipboard Sync
-- Copy on Mac → automatically syncs to phone
-- Copy on phone → automatically syncs to Mac
-- Configurable sync interval (default 1 second)
-- Content hashing prevents sync loops
-- Can be disabled via config
+### 📋 Bidirectional Clipboard Sync
+- 🖥️→📱 Copy on Mac → automatically syncs to phone
+- 📱→🖥️ Copy on phone → automatically syncs to Mac
+- ⚡ Configurable sync interval (default 1 second)
+- 🔄 Content hashing prevents sync loops
+- ⚙️ Can be disabled via config
 
-### Universal Terminal Support
+### 🖥️ Universal Terminal Support
 
 Fully implemented parsers:
-- **Ghostty** - Complete theme and font parsing
-- **iTerm2** - Binary plist with RGB color extraction
-- **Alacritty** - YAML config with multiple file support
-- **Kitty** - Key-value config with include directives
-- **Terminal.app** - NSColor/NSFont parsing (best-effort)
+- **✅ Ghostty** - Complete theme and font parsing
+- **✅ iTerm2** - Binary plist with RGB color extraction
+- **✅ Alacritty** - YAML config with multiple file support
+- **✅ Kitty** - Key-value config with include directives
+- **✅ Terminal.app** - NSColor/NSFont parsing (best-effort)
 
 Partial support (default theme fallback):
-- Warp
-- Hyper
-- Windows Terminal
+- ⏳ Warp
+- ⏳ Hyper
+- ⏳ Windows Terminal
 
-Can't find your terminal? Uses a clean default theme.
+🎨 Can't find your terminal? Uses a clean default theme.
 
-### Mobile Optimized
-- Responsive terminal sizing
-- iOS safe area support (handles notch/home indicator)
-- Smooth scrolling with momentum
-- Keyboard-aware layout
-- Works on ANY phone browser
-- Real-time clipboard sync with your Mac
+### 📱 Mobile Optimized
+- 📐 Responsive terminal sizing
+- 📲 iOS safe area support (handles notch/home indicator)
+- 🌊 Smooth scrolling with momentum
+- ⌨️ Keyboard-aware layout
+- 🌍 Works on ANY phone browser
+- 📋 Real-time clipboard sync with your Mac
 
-### Production Ready
-- 60-minute stability testing with live metrics
-- Memory leak detection and monitoring
-- CPU and latency tracking
-- Error rate monitoring
-- Stability scoring (90+/100 passing criteria)
+### 🏭 Production Ready
+- ⏱️ 60-minute stability testing with live metrics
+- 🔍 Memory leak detection and monitoring
+- 📊 CPU and latency tracking
+- 🚨 Error rate monitoring
+- 📈 Stability scoring (90+/100 passing criteria)
 
 ## How It Works
 
@@ -150,27 +150,27 @@ ENABLE_CLIPBOARD_SYNC=true      # Enable clipboard synchronization
 CLIPBOARD_SYNC_INTERVAL=1.0     # Clipboard check interval (seconds)
 ```
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
-### "Claude CLI not found"
+### ❌ "Claude CLI not found"
 
-Install it from [https://claude.ai/download](https://claude.ai/download)
+📥 Install it from [https://claude.ai/download](https://claude.ai/download)
 
-### "Can't connect from phone"
+### 🚫 "Can't connect from phone"
 
-1. Make sure you're on the same WiFi network
-2. Try the direct IP URL instead of `.local`
-3. Check firewall settings on your Mac
+1. ✅ Make sure you're on the same WiFi network
+2. 🔗 Try the direct IP URL instead of `.local`
+3. 🔥 Check firewall settings on your Mac
 
-### "Terminal looks weird"
+### 🎨 "Terminal looks weird"
 
-Your terminal config wasn't detected. To add support:
-1. Check `docs/ADDING_TERMINALS.md`
-2. Or just use the default theme (it's pretty good!)
+🔍 Your terminal config wasn't detected. To add support:
+1. 📖 Check `docs/ADDING_TERMINALS.md`
+2. 🎯 Or just use the default theme (it's pretty good!)
 
-### "Connection keeps dropping"
+### ⚠️ "Connection keeps dropping"
 
-Check `backend.log` and `frontend.log` for errors:
+📝 Check `backend.log` and `frontend.log` for errors:
 
 ```bash
 tail -f backend.log
