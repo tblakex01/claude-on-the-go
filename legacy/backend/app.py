@@ -5,6 +5,8 @@ Secure WebSockets with rate limiting, validation, and message batching
 
 import asyncio
 import json
+import os
+import sys
 import time
 from typing import Optional, Set
 
@@ -17,6 +19,10 @@ from network_utils import print_startup_banner
 from parsers import parse_terminal_config
 from security import AuthManager, RateLimiter, redact_logs, sanitize_input, validate_message
 from session_manager import SessionManager
+
+# Add parent directory to path for integrations import
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
+from integrations import NotificationService, PromptDetector
 
 app = FastAPI(title="Claude-onTheGo Backend")
 
@@ -108,6 +114,12 @@ class ConnectionManager:
         self.auth_manager = AuthManager(
             enabled=Config.ENABLE_AUTH,
             token=Config.AUTH_TOKEN if Config.ENABLE_AUTH else None,
+        )
+
+        # Push notifications (optional - enabled via env vars)
+        self.notification_service = NotificationService()
+        self.prompt_detector = (
+            PromptDetector(debounce_seconds=30.0) if self.notification_service.enabled else None
         )
 
     def _log(self, message: str):
@@ -247,6 +259,14 @@ class ConnectionManager:
         for ws in list(self.active_connections):
             if ws in self.batchers:
                 self.batchers[ws].add(text)
+
+        # Detect Claude prompts for push notifications
+        if self.prompt_detector and not self.active_connections:
+            self.prompt_detector.add_output(text)
+            if self.prompt_detector.should_notify():
+                # User is away (no active connections), send notification
+                session_url = f"http://{Config.BACKEND_HOST}:{Config.FRONTEND_PORT}"
+                await self.notification_service.notify_claude_prompt(session_url)
 
     async def _flush_loop(self):
         """Periodically flush batched messages"""
