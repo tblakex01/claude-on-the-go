@@ -1,7 +1,116 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claude-on-the-go"
+version = "1.0.0"
+description = "Access Claude Code CLI from your mobile device over WiFi"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Matthew Jamison", email = "99699313+MatthewJamisonJS@users.noreply.github.com"}
+]
+maintainers = [
+    {name = "Matthew Jamison", email = "99699313+MatthewJamisonJS@users.noreply.github.com"}
+]
+keywords = ["claude", "terminal", "mobile", "websocket", "pwa", "cli"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: User Interfaces",
+    "Topic :: Terminals",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+    "Environment :: Web Environment",
+    "Framework :: FastAPI",
+]
+
+dependencies = [
+    "fastapi==0.118.3",
+    "uvicorn[standard]==0.37.0",
+    "websockets==15.0.1",
+    "pexpect==4.9.0",
+    "qrcode[pil]==8.2",
+    "PyYAML==6.0.1",
+    "pydantic-settings==2.11.0",
+    "httpx==0.27.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.4.2",
+    "pytest-asyncio==1.2.0",
+    "psutil==5.9.6",
+    "mypy>=1.0",
+    "black>=23.0",
+    "ruff>=0.1.0",
+]
+
+security = [
+    "safety==2.3.5",
+    "bandit==1.8.6",
+]
+
+[project.urls]
+Homepage = "https://github.com/MatthewJamisonJS/claude-on-the-go"
+Documentation = "https://github.com/MatthewJamisonJS/claude-on-the-go#readme"
+Repository = "https://github.com/MatthewJamisonJS/claude-on-the-go"
+"Bug Reports" = "https://github.com/MatthewJamisonJS/claude-on-the-go/issues"
+
+[project.scripts]
+claude-on-the-go = "claude_on_the_go.cli:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["claude_on_the_go*", "legacy*", "core*", "integrations*", "client*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.html", "*.css", "*.js", "*.json", "*.png", "*.ico", "*.md", "*.sh"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+
 [tool.black]
 line-length = 100
-target-version = ['py311']
+target-version = ["py39", "py310", "py311", "py312"]
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | build
+  | dist
+)/
+'''
 
-[tool.isort]
-profile = "black"
-line_length = 100
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]

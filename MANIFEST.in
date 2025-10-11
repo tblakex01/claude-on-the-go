@@ -1,0 +1,54 @@
+# Include documentation
+include README.md
+include LICENSE
+include CLAUDE.md
+include *.md
+
+# Include configuration files
+include requirements.txt
+include pyproject.toml
+include setup.py
+
+# Include legacy backend/frontend
+recursive-include legacy *.py *.html *.css *.js *.json *.md
+
+# Include core modules
+recursive-include core *.py *.md
+
+# Include integrations
+recursive-include integrations *.py
+
+# Include client/PWA files
+recursive-include client *.html *.css *.js *.json *.png *.ico
+
+# Include scripts
+recursive-include scripts *.py *.sh
+global-include *.sh
+
+# Include generated icons
+recursive-include legacy/frontend/icons *.png
+
+# Include documentation
+recursive-include docs *.md
+
+# Exclude unnecessary files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude *.swp
+global-exclude *.swo
+global-exclude *~
+
+# Exclude test files
+recursive-exclude tests *
+recursive-exclude legacy/tests *
+
+# Exclude development files
+exclude .gitignore
+exclude .backend.pid
+exclude .frontend.pid
+exclude .coverage
+exclude sessions.db
+exclude sessions.db-shm
+exclude sessions.db-wal
