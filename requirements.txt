@@ -5,7 +5,7 @@ websockets==15.0.1
 pexpect==4.9.0
 qrcode[pil]==7.4.2
 PyYAML==6.0.1
-pydantic-settings==2.0.3
+pydantic-settings==2.11.0
 
 # Security Tools
 safety==2.3.5
