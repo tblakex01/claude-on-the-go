@@ -8,7 +8,29 @@
 
 Use Claude on your iPhone, Android, or any device with a browser - while your Mac does the heavy lifting. No cloud sync, no data leaks, just your local network keeping things fast and private.
 
+## 🆕 Latest Improvements (v1.1)
 
+Three major features just landed to make your mobile Claude experience even better:
+
+**📲 Progressive Web App (PWA)**
+- Install directly to your home screen like a native app
+- Works offline with intelligent caching
+- Full-screen experience without browser chrome
+- See [docs/PWA_IMPLEMENTATION.md](docs/PWA_IMPLEMENTATION.md) for details
+
+**🔔 Push Notifications**
+- Get notified when Claude needs your input
+- Support for Pushover, ntfy.sh, and Telegram
+- Smart detection with 30-second debouncing
+- See [docs/PUSH_NOTIFICATIONS.md](docs/PUSH_NOTIFICATIONS.md) for setup
+
+**📦 Easy Installation**
+- Now available via pip: `pip install claude-on-the-go`
+- Complete CLI with commands: start, stop, status, logs, qr
+- Professional packaging with all dependencies included
+- See [docs/INSTALLATION.md](docs/INSTALLATION.md) for all install options
+
+---
 
 
 
