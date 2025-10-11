@@ -4,12 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Theme color -->
+    <meta name="theme-color" content="#1e1e1e">
+    <meta name="msapplication-TileColor" content="#1e1e1e">
+
     <!-- iOS-specific meta tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Claude">
+    <meta name="apple-mobile-web-app-title" content="ClaudeGo">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+
+    <!-- Standard favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
 
     <title>Claude-onTheGo</title>
+
+    <!-- PWA Meta -->
+    <meta name="description" content="Access Claude Code CLI from your mobile device over WiFi">
+    <meta name="mobile-web-app-capable" content="yes"
 
     <!-- Xterm.js CSS from CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
@@ -25,6 +41,29 @@
 
     <div id="terminal-container"></div>
 
+    <!-- PWA Install Banner -->
+    <div id="install-banner" class="install-banner hidden">
+        <div class="install-content">
+            <div class="install-icon">📲</div>
+            <div class="install-text">
+                <strong>Install Claude-onTheGo</strong>
+                <p>Add to home screen for a better experience</p>
+            </div>
+            <button id="install-button" class="install-btn">Install</button>
+            <button id="dismiss-install" class="dismiss-btn">✕</button>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="reconnect-toast" class="toast hidden">
+        <span id="reconnect-message"></span>
+    </div>
+
+    <div id="loading-overlay" class="overlay hidden">
+        <div class="spinner"></div>
+        <p id="loading-message">Restoring session...</p>
+    </div>
+
     <!-- Xterm.js library from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
@@ -32,5 +71,84 @@
 
     <!-- Terminal WebSocket client -->
     <script src="terminal.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('[PWA] Service Worker registered:', registration.scope);
+
+                        // Check for updates periodically
+                        setInterval(() => {
+                            registration.update();
+                        }, 60000); // Check every minute
+                    })
+                    .catch(error => {
+                        console.error('[PWA] Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // Handle install prompt
+        let deferredPrompt;
+        const installBanner = document.getElementById('install-banner');
+        const installButton = document.getElementById('install-button');
+        const dismissButton = document.getElementById('dismiss-install');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing
+            e.preventDefault();
+
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+
+            // Check if user previously dismissed
+            const dismissed = localStorage.getItem('pwa-install-dismissed');
+            if (!dismissed) {
+                // Show install banner after 3 seconds
+                setTimeout(() => {
+                    installBanner.classList.remove('hidden');
+                }, 3000);
+            }
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (!deferredPrompt) {
+                return;
+            }
+
+            // Show the install prompt
+            deferredPrompt.prompt();
+
+            // Wait for the user's response
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('[PWA] Install prompt outcome:', outcome);
+
+            // Clear the deferredPrompt
+            deferredPrompt = null;
+
+            // Hide the banner
+            installBanner.classList.add('hidden');
+        });
+
+        dismissButton.addEventListener('click', () => {
+            installBanner.classList.add('hidden');
+            localStorage.setItem('pwa-install-dismissed', 'true');
+        });
+
+        // Detect when app is installed
+        window.addEventListener('appinstalled', () => {
+            console.log('[PWA] App installed successfully');
+            installBanner.classList.add('hidden');
+            deferredPrompt = null;
+        });
+
+        // Detect if running as PWA
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('[PWA] Running as installed app');
+        }
+    </script>
 </body>
 </html>

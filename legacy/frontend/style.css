@@ -439,3 +439,121 @@ body {
         }
     }
 }
+
+/* PWA Install Banner */
+.install-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(30, 30, 30, 0.98), rgba(30, 30, 30, 0.95));
+    backdrop-filter: blur(10px);
+    padding: 16px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 9998;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+.install-banner.hidden {
+    transform: translateY(100%);
+}
+
+.install-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.install-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.install-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.install-text strong {
+    display: block;
+    color: #fff;
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.install-text p {
+    color: #a0a0a0;
+    font-size: 13px;
+    margin: 0;
+}
+
+.install-btn {
+    background: #b7a8ff;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.install-btn:hover {
+    background: #c7b8ff;
+    transform: scale(1.05);
+}
+
+.install-btn:active {
+    transform: scale(0.95);
+}
+
+.dismiss-btn {
+    background: transparent;
+    color: #858585;
+    border: none;
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dismiss-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+@media (max-width: 568px) {
+    .install-content {
+        gap: 8px;
+    }
+
+    .install-icon {
+        font-size: 24px;
+    }
+
+    .install-text strong {
+        font-size: 14px;
+    }
+
+    .install-text p {
+        font-size: 12px;
+    }
+
+    .install-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+}

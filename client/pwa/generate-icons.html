@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generate PWA Icons</title>
+</head>
+<body>
+    <h1>Icon Generator for Claude-onTheGo</h1>
+    <p>Open browser console and run this page to generate icons.</p>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script>
+        // Generate PWA icons programmatically
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+        function generateIcon(size) {
+            const canvas = document.getElementById('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = '#1e1e1e';
+            ctx.fillRect(0, 0, size, size);
+
+            // Border radius effect
+            const radius = size * 0.15;
+            ctx.beginPath();
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(size - radius, 0);
+            ctx.quadraticCurveTo(size, 0, size, radius);
+            ctx.lineTo(size, size - radius);
+            ctx.quadraticCurveTo(size, size, size - radius, size);
+            ctx.lineTo(radius, size);
+            ctx.quadraticCurveTo(0, size, 0, size - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+            ctx.clip();
+
+            // Gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#2d2d2d');
+            gradient.addColorStop(1, '#1a1a1a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // Claude "C" symbol
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const radius1 = size * 0.28;
+
+            ctx.strokeStyle = '#b7a8ff';  // Claude purple
+            ctx.lineWidth = size * 0.08;
+            ctx.lineCap = 'round';
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius1, Math.PI * 0.7, Math.PI * 2.3);
+            ctx.stroke();
+
+            // Terminal cursor
+            const cursorX = centerX + radius1 * 0.6;
+            const cursorY = centerY;
+            const cursorSize = size * 0.12;
+
+            ctx.fillStyle = '#10b981';  // Green cursor
+            ctx.fillRect(cursorX - cursorSize/4, cursorY - cursorSize/2, cursorSize/2, cursorSize);
+
+            // Download
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `icon-${size}x${size}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // Generate all sizes
+        console.log('Generating icons...');
+        sizes.forEach((size, index) => {
+            setTimeout(() => {
+                generateIcon(size);
+                console.log(`Generated icon-${size}x${size}.png`);
+            }, index * 500);
+        });
+
+        console.log('Icons will download automatically. Save them to client/pwa/icons/');
+    </script>
+</body>
+</html>

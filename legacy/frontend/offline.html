@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Claude-onTheGo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            color: #d4d4d4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: #b7a8ff;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #c7b8ff;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .status {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #858585;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📡</div>
+        <h1>You're Offline</h1>
+        <p>Claude-onTheGo requires a connection to your Mac. Make sure you're on the same WiFi network and the server is running.</p>
+
+        <button onclick="location.reload()">Try Again</button>
+
+        <div class="status" id="status">Checking connection...</div>
+    </div>
+
+    <script>
+        // Check connection status
+        function checkConnection() {
+            const status = document.getElementById('status');
+
+            if (navigator.onLine) {
+                status.textContent = 'Online - attempting to reconnect...';
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                status.textContent = 'No internet connection detected';
+            }
+        }
+
+        // Check immediately
+        checkConnection();
+
+        // Listen for online event
+        window.addEventListener('online', () => {
+            document.getElementById('status').textContent = 'Connection restored!';
+            setTimeout(() => location.reload(), 1000);
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('status').textContent = 'Connection lost';
+        });
+
+        // Periodic check
+        setInterval(checkConnection, 5000);
+    </script>
+</body>
+</html>
