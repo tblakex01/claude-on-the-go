@@ -5,10 +5,17 @@
 
 class ClaudeTerminal {
     constructor() {
+        // Session persistence
+        this.sessionId = null;
+        this.loadSessionFromStorage();
+
         // WebSocket config - auto-detect localhost vs network IP
         const hostname = window.location.hostname;
         this.wsUrl = `ws://${hostname}:8000/ws`;
         console.log(`[WS] Connecting to: ${this.wsUrl}`);
+        if (this.sessionId) {
+            console.log(`[WS] Will attempt to reconnect to session: ${this.sessionId}`);
+        }
         this.ws = null;
         this.connected = false;
 
@@ -41,7 +48,7 @@ class ClaudeTerminal {
     init() {
         // Detect mobile
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        const fontSize = isMobile ? 13 : 14; // Smaller on mobile to prevent wrapping
+        const fontSize = isMobile ? 14 : 14; // Consistent font size
 
         // Create terminal with mobile-optimized settings
         this.term = new Terminal({
@@ -56,16 +63,17 @@ class ClaudeTerminal {
             // Mobile optimizations
             convertEol: true,
             screenReaderMode: false,
-            // CRITICAL: Use DOM renderer on mobile for proper ANSI cursor positioning
-            // Canvas renderer on mobile doesn't handle cursor movement escape codes correctly,
-            // causing animated status messages to duplicate instead of updating in-place
-            rendererType: isMobile ? 'dom' : 'canvas',
+            // Use canvas renderer for better scroll performance
+            // Canvas is faster and smoother for scrolling on mobile
+            rendererType: 'canvas',
             allowProposedApi: true,
-            smoothScrollDuration: 100,
+            smoothScrollDuration: isMobile ? 0 : 100, // Instant on mobile for better feel
             // Important: Disable local echo - server handles all echo
-            disableStdin: false, // We need stdin for input
-            // Fix for mobile wrapping
+            disableStdin: false,
             windowOptions: {},
+            // Scroll optimization
+            fastScrollModifier: 'alt',
+            fastScrollSensitivity: 5,
         });
 
         // Add fit addon for responsive sizing
@@ -117,27 +125,78 @@ class ClaudeTerminal {
 
         // Handle iOS keyboard show/hide using visualViewport
         if (window.visualViewport) {
+            let keyboardVisible = false;
+
             window.visualViewport.addEventListener('resize', () => {
-                // Resize terminal when keyboard appears/disappears
-                setTimeout(() => {
-                    this.fitAddon.fit();
-                    this.sendTerminalSize();
-                }, 100);
+                // Detect keyboard state
+                const viewportHeight = window.visualViewport.height;
+                const windowHeight = window.innerHeight;
+                const newKeyboardVisible = viewportHeight < windowHeight * 0.75;
+
+                if (newKeyboardVisible !== keyboardVisible) {
+                    keyboardVisible = newKeyboardVisible;
+
+                    // Resize terminal when keyboard state changes
+                    setTimeout(() => {
+                        this.fitAddon.fit();
+                        this.sendTerminalSize();
+
+                        // Scroll to cursor when keyboard appears
+                        if (keyboardVisible) {
+                            this.scrollToCursor();
+                        }
+                    }, 100);
+                }
             });
         }
 
-        // Mobile-specific: prevent body scroll when terminal is focused
+        // Mobile-specific: enhance touch scrolling
         if (isMobile) {
-            this.term.textarea?.addEventListener('focus', () => {
-                document.body.style.overflow = 'hidden';
-            });
+            const viewport = container.querySelector('.xterm-viewport');
+            if (viewport) {
+                // Prevent scroll interference
+                viewport.addEventListener('touchstart', (e) => {
+                    // Allow native scroll to work
+                    e.stopPropagation();
+                }, { passive: true });
 
-            this.term.textarea?.addEventListener('blur', () => {
-                document.body.style.overflow = '';
-            });
+                viewport.addEventListener('touchmove', (e) => {
+                    e.stopPropagation();
+                }, { passive: true });
+            }
         }
 
         // NOTE: Connect is now called after initial fit (see setTimeout above)
+    }
+
+    loadSessionFromStorage() {
+        try {
+            const stored = localStorage.getItem('claude_session_id');
+            if (stored) {
+                this.sessionId = stored;
+                console.log(`[SESSION] Loaded session ID from storage: ${this.sessionId}`);
+            }
+        } catch (e) {
+            console.warn('[SESSION] localStorage not available:', e);
+        }
+    }
+
+    saveSessionToStorage(sessionId) {
+        try {
+            localStorage.setItem('claude_session_id', sessionId);
+            console.log(`[SESSION] Saved session ID to storage: ${sessionId}`);
+        } catch (e) {
+            console.warn('[SESSION] Failed to save session ID:', e);
+        }
+    }
+
+    clearSessionFromStorage() {
+        try {
+            localStorage.removeItem('claude_session_id');
+            console.log('[SESSION] Cleared session ID from storage');
+        } catch (e) {
+            console.warn('[SESSION] Failed to clear session ID:', e);
+        }
     }
 
     connect() {
@@ -148,7 +207,14 @@ class ClaudeTerminal {
         this.updateStatus('Connecting...', 'connecting');
 
         try {
-            this.ws = new WebSocket(this.wsUrl);
+            // Build WebSocket URL with session ID if available
+            let wsUrl = this.wsUrl;
+            if (this.sessionId) {
+                wsUrl += `?session_id=${this.sessionId}`;
+                console.log(`[WS] Connecting with session ID: ${this.sessionId}`);
+            }
+
+            this.ws = new WebSocket(wsUrl);
             this.ws.binaryType = 'arraybuffer';
 
             this.ws.onopen = () => this.onOpen();
@@ -197,12 +263,39 @@ class ClaudeTerminal {
             // DEBUG: Log all messages
             console.log(`[WS MSG] Type: ${msgType}, Length: ${message.text?.length || 0}`);
 
-            if (msgType === 'output') {
+            if (msgType === 'session') {
+                // Handle session ID assignment/reconnection
+                const sessionId = message.session_id;
+                const reconnected = message.reconnected || false;
+                const ageSeconds = message.age_seconds || 0;
+
+                console.log(`[SESSION] Received session ID: ${sessionId}, reconnected: ${reconnected}`);
+
+                // Store session ID
+                this.sessionId = sessionId;
+                this.saveSessionToStorage(sessionId);
+
+                // Show reconnection notification if applicable
+                if (reconnected) {
+                    this.showReconnectNotification(ageSeconds);
+                }
+
+            } else if (msgType === 'output') {
                 // DEBUG: Log output details
                 console.log(`[WS OUTPUT] Writing ${message.text.length} chars:`, message.text.substring(0, 50));
 
-                // Write output to terminal
-                this.term.write(message.text);
+                const isReplay = message.is_replay || false;
+
+                if (isReplay) {
+                    // Clear terminal before replaying history
+                    console.log('[WS OUTPUT] Replaying session history...');
+                    this.term.clear();
+                    this.term.write(message.text);
+                    this.showReplayComplete();
+                } else {
+                    // Live output
+                    this.term.write(message.text);
+                }
 
             } else if (msgType === 'theme') {
                 console.log('[WS THEME] Applying theme');
@@ -389,6 +482,100 @@ class ClaudeTerminal {
         if (statusEl) {
             statusEl.textContent = text;
             statusEl.className = statusClass;
+        }
+    }
+
+    showReconnectNotification(ageSeconds) {
+        const minutes = Math.floor(ageSeconds / 60);
+        const seconds = Math.floor(ageSeconds % 60);
+
+        let timeStr;
+        if (minutes > 0) {
+            timeStr = `${minutes}m ${seconds}s`;
+        } else {
+            timeStr = `${seconds}s`;
+        }
+
+        const message = `Reconnected to session (${timeStr} old)`;
+        this.showToast(message, 3000);
+    }
+
+    showReplayComplete() {
+        this.showToast('History restored', 2000);
+    }
+
+    showToast(message, duration = 3000) {
+        const toast = document.getElementById('reconnect-toast');
+        const messageEl = document.getElementById('reconnect-message');
+
+        if (!toast || !messageEl) {
+            console.warn('[TOAST] Toast elements not found in DOM');
+            return;
+        }
+
+        messageEl.textContent = message;
+        toast.classList.remove('hidden');
+
+        // Auto-hide after duration
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, duration);
+    }
+
+    showLoadingOverlay(message = 'Restoring session...') {
+        const overlay = document.getElementById('loading-overlay');
+        const messageEl = document.getElementById('loading-message');
+
+        if (overlay) {
+            if (messageEl) {
+                messageEl.textContent = message;
+            }
+            overlay.classList.remove('hidden');
+        }
+    }
+
+    hideLoadingOverlay() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+        }
+    }
+
+    clearSession() {
+        console.log('[SESSION] Clearing session and starting fresh...');
+
+        // Clear session ID from storage
+        this.clearSessionFromStorage();
+        this.sessionId = null;
+
+        // Close current connection
+        if (this.ws) {
+            this.ws.close();
+        }
+
+        // Clear terminal
+        if (this.term) {
+            this.term.clear();
+        }
+
+        // Reconnect with new session
+        this.connect();
+
+        this.showToast('Started new session', 2000);
+    }
+
+    scrollToCursor() {
+        // Scroll terminal to show cursor position
+        if (this.term && this.term.buffer) {
+            const cursorY = this.term.buffer.active.cursorY;
+            const viewport = document.querySelector('.xterm-viewport');
+
+            if (viewport) {
+                // Scroll to show cursor with some padding
+                const lineHeight = this.term._core._renderService.dimensions.actualCellHeight;
+                const scrollTop = (cursorY - 5) * lineHeight; // 5 lines of padding
+                viewport.scrollTop = Math.max(0, scrollTop);
+            }
         }
     }
 

@@ -141,3 +141,20 @@ customer_communications/
 production_metrics/
 sentry.config.js
 error_tracking/
+
+# Claude AI (development only - DO NOT TRACK)
+.claude/
+.claude-*
+**/claude-session-*
+CLAUDE.md
+CLAUDE_OLD.md
+*_SUMMARY.md
+TRACK_*.md
+OMNARA_COMPETITIVE_STRATEGY.md
+
+# Development artifacts
+.backend.pid
+.frontend.pid
+.coverage
+sessions.db-shm
+sessions.db-wal
