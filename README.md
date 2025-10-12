@@ -12,6 +12,20 @@ Use Claude on your iPhone, Android, or any device with a browser - while your Ma
 
 Three major features just landed to make your mobile Claude experience even better:
 
+## 🆙 Upgrading to v1.2
+
+Already have claude-on-the-go? Update to get the latest fixes:
+
+```bash
+cd claude-on-the-go
+git pull origin main
+./install.sh  # Reinstall dependencies (handles any new requirements)
+```
+
+That's it! Restart with `./start.sh` to enjoy the new features.
+
+---
+
 **📲 Progressive Web App (PWA)**
 - Install directly to your home screen like a native app
 - Works offline with intelligent caching
@@ -39,25 +53,11 @@ Three major features just landed to make your mobile Claude experience even bett
 
 claude-on-the-go lets you use the [Claude Code CLI](https://claude.ai/download) from your mobile device. Your Mac runs the `claude` process, and your phone displays the terminal over WiFi.
 
-![Screenshot showing Claude-onTheGo mobile interface](screenshot-mobile.jpeg)
-
 **Perfect for:**
 - 🛏️ Coding from bed without lugging your laptop
 - ⚡ Quick fixes while away from your desk
 - 🎉 Showing off Claude to friends on your phone
 - 🎨 Actually using that sweet terminal theme you spent hours configuring😅
-
-## 🆙 Upgrading to v1.2
-
-Already have claude-on-the-go? Update to get the latest fixes:
-
-```bash
-cd claude-on-the-go
-git pull origin main
-./install.sh  # Reinstall dependencies (handles any new requirements)
-```
-
-That's it! Restart with `./start.sh` to enjoy the new features.
 
 ---
 
