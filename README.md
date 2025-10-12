@@ -8,7 +8,7 @@
 
 Use Claude on your iPhone, Android, or any device with a browser - while your Mac does the heavy lifting. No cloud sync, no data leaks, just your local network keeping things fast and private.
 
-## 🆕 Latest Improvements (v1.1)
+## 🆕 Latest Improvements (v1.2)
 
 Three major features just landed to make your mobile Claude experience even better:
 
@@ -18,11 +18,12 @@ Three major features just landed to make your mobile Claude experience even bett
 - Full-screen experience without browser chrome
 - See [docs/PWA_IMPLEMENTATION.md](docs/PWA_IMPLEMENTATION.md) for details
 
-**🔔 Push Notifications**
-- Get notified when Claude needs your input
-- Support for Pushover, ntfy.sh, and Telegram
-- Smart detection with 30-second debouncing
-- See [docs/PUSH_NOTIFICATIONS.md](docs/PUSH_NOTIFICATIONS.md) for setup
+**🚀 Seamless Mobile Reconnection**
+- Beautiful rocket launch screen during reconnection
+- Progressive status messages: "Launching..." → "Starting Claude..." → Error detection
+- No more black screen bugs - overlay stays visible until Claude responds
+- 15-second timeout with helpful error messages
+- Video-verified smooth reconnection on iPhone Safari
 
 **📦 Easy Installation**
 - Now available via pip: `pip install claude-on-the-go`
@@ -45,6 +46,20 @@ claude-on-the-go lets you use the [Claude Code CLI](https://claude.ai/download) 
 - ⚡ Quick fixes while away from your desk
 - 🎉 Showing off Claude to friends on your phone
 - 🎨 Actually using that sweet terminal theme you spent hours configuring😅
+
+## 🆙 Upgrading to v1.2
+
+Already have claude-on-the-go? Update to get the latest fixes:
+
+```bash
+cd claude-on-the-go
+git pull origin main
+./install.sh  # Reinstall dependencies (handles any new requirements)
+```
+
+That's it! Restart with `./start.sh` to enjoy the new features.
+
+---
 
 ## 🚀 Quick Start
 

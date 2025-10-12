@@ -3,7 +3,7 @@
  * Provides offline support and caching strategy
  */
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `claude-on-the-go-${CACHE_VERSION}`;
 
 // Assets to cache immediately on install
@@ -85,8 +85,12 @@ self.addEventListener('fetch', event => {
             if (networkResponse && networkResponse.status === 200) {
               caches.open(CACHE_NAME).then(cache => {
                 cache.put(request, networkResponse.clone());
+              }).catch(err => {
+                console.warn('[SW] Background cache update failed:', request.url, err.message || err);
               });
             }
+          }).catch(err => {
+            console.warn('[SW] Background fetch failed:', request.url, err.message || err);
           });
           return cachedResponse;
         }
@@ -110,14 +114,12 @@ self.addEventListener('fetch', event => {
           .catch(() => {
             // Return offline page for navigation requests
             if (request.mode === 'navigate') {
-              return caches.match('/offline.html').then(offlineResponse => {
-                return offlineResponse || new Response('Offline', {
-                  status: 503,
-                  statusText: 'Service Unavailable',
-                  headers: new Headers({
-                    'Content-Type': 'text/plain'
-                  })
-                });
+              return new Response('Offline - Please check your connection', {
+                status: 503,
+                statusText: 'Service Unavailable',
+                headers: new Headers({
+                  'Content-Type': 'text/plain'
+                })
               });
             }
 

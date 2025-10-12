@@ -5,9 +5,11 @@ Secure WebSockets with rate limiting, validation, and message batching
 
 import asyncio
 import json
+import logging
 import os
 import sys
 import time
+from contextlib import asynccontextmanager
 from typing import Optional, Set
 
 from claude_wrapper import ClaudeWrapper
@@ -24,16 +26,34 @@ from session_manager import SessionManager
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 from integrations import NotificationService, PromptDetector
 
-app = FastAPI(title="Claude-onTheGo Backend")
+# Configure structured logging
+logger = logging.getLogger("claude-on-the-go")
+logger.setLevel(logging.INFO)
+logger.propagate = False  # Prevent propagation to root logger
 
-# CORS with configurable origins
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=Config.ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["GET", "POST"],
-    allow_headers=["*"],
+# Clear any existing handlers (prevents duplicates on module reload)
+logger.handlers.clear()
+
+# File handler only - launcher captures stdout during startup, then we write to file directly
+log_formatter = logging.Formatter(
+    "%(asctime)s [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
 )
+
+try:
+    file_handler = logging.FileHandler("../../backend.log", mode="a")
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(log_formatter)
+    logger.addHandler(file_handler)
+except Exception as e:
+    # Fallback to console if file handler fails
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(log_formatter)
+    logger.addHandler(console_handler)
+
+# Force immediate flush for all handlers
+for handler in logger.handlers:
+    handler.flush()
 
 
 class MessageBatcher:
@@ -96,6 +116,15 @@ class ConnectionManager:
         self.current_connection: Optional[WebSocket] = None
         self.current_session_id: Optional[str] = None
 
+        # Track which websockets have received session replay (prevents duplicate replay)
+        self.replayed_websockets: Set[WebSocket] = set()
+
+        # Store initial Claude banner for replay on all connections
+        self.initial_banner: Optional[str] = None
+        self.banner_captured = False
+        self.banner_buffer = []
+        self.banner_max_size = 3000  # Capture first ~3KB (banner + prompt)
+
         # Session management
         self.session_manager = SessionManager(session_timeout=3600)  # 1 hour
 
@@ -122,9 +151,18 @@ class ConnectionManager:
             PromptDetector(debounce_seconds=30.0) if self.notification_service.enabled else None
         )
 
+        # Theme caching (Phase 1 Optimization: parsed once at startup, not on every connection)
+        self.cached_theme = None
+
     def _log(self, message: str):
-        """Log with optional redaction"""
-        print(redact_logs(message, enabled=Config.LOG_REDACTION))
+        """Log with structured logging and optional redaction"""
+        # Apply redaction if enabled
+        if Config.LOG_REDACTION:
+            message = redact_logs(message, enabled=True)
+        # Prevent log injection by replacing newlines with spaces
+        message = message.replace("\n", " ").replace("\r", " ")
+        # Use logger with automatic flushing
+        logger.info(message)
 
     async def connect(
         self,
@@ -150,12 +188,15 @@ class ConnectionManager:
         self._log("[WS] Starting connection...")
 
         # Check for session reconnection
+        existing_session = None  # Initialize to prevent NameError
         if session_id:
             existing_session = self.session_manager.get_session(session_id)
             if existing_session:
                 self._log(f"[WS] Reconnecting to existing session {session_id}")
                 self.claude = existing_session.claude_wrapper
                 self.current_session_id = session_id
+            else:
+                self._log(f"[WS] Session {session_id} not found - will create new session")
 
         # SINGLE-USER GUARD: Close all existing connections
         if self.active_connections:
@@ -172,6 +213,7 @@ class ConnectionManager:
             # Clear all tracking
             self.active_connections.clear()
             self.batchers.clear()
+            self.replayed_websockets.clear()  # Also clear replay tracking
             self._log("[WS] All old connections cleared")
 
         # Now accept the new connection
@@ -181,22 +223,46 @@ class ConnectionManager:
         self.current_connection = websocket
         self._log("[WS] New connection accepted (single-user mode active)")
 
-        # Send theme config on connect
-        try:
-            self._log("[WS] Parsing terminal config...")
-            theme_config = parse_terminal_config()
-            self._log(f"[WS] Theme config loaded")
-            theme_msg = {
-                "type": "theme",
-                "colors": theme_config["colors"],
-                "font": theme_config["font"],
-                "fontSize": theme_config["fontSize"],
-            }
-            self._log("[WS] Sending theme to client...")
-            await self._send_json(websocket, theme_msg)
-            self._log("[WS] Theme sent successfully")
-        except Exception as e:
-            self._log(f"[WS] Failed to send theme: {e}")
+        # Send cached theme (Phase 1 Optimization: instant, no parsing delay)
+        if self.cached_theme:
+            try:
+                self._log("[WS] Sending cached theme to client...")
+                await self._send_json(websocket, self.cached_theme)
+                self._log("[WS] Cached theme sent successfully")
+            except Exception as e:
+                self._log(f"[WS] Failed to send theme: {e}")
+        else:
+            self._log("[WS] Warning: No cached theme available, theme will not be applied")
+
+        # Send session confirmation for reconnections
+        if existing_session:
+            self._log(f"[WS] Confirming session reconnection: {self.current_session_id}")
+            await self._send_json(
+                websocket,
+                {"type": "session", "session_id": self.current_session_id, "reconnected": True},
+            )
+
+        # Replay buffered output if reconnecting to existing session
+        # Only replay if this websocket hasn't received it yet (prevents duplicate replay)
+        if session_id and existing_session and websocket not in self.replayed_websockets:
+            buffered = existing_session.get_buffered_output()
+            if buffered:
+                buffer_size = existing_session.get_buffer_size()
+                self._log(
+                    f"[WS] Replaying {buffer_size} bytes ({len(buffered)} chars) of session history"
+                )
+                try:
+                    await self._send_json(
+                        websocket, {"type": "output", "text": buffered, "is_replay": True}
+                    )
+                    # Mark this websocket as having received replay
+                    self.replayed_websockets.add(websocket)
+                    # DON'T clear buffer - preserve history for future reconnections
+                    self._log(
+                        "[WS] Session history replay complete (history preserved for future reconnections)"
+                    )
+                except Exception as e:
+                    self._log(f"[WS] Failed to replay session history: {e}")
 
         # Start claude process if not running
         self._log(f"[WS] Claude status: alive={self.claude.is_alive() if self.claude else False}")
@@ -210,11 +276,52 @@ class ConnectionManager:
             await self.claude.start(self._handle_claude_output)
             self._log("[WS] Claude process started")
 
+            # Clear any stale buffers from previous session
+            if self.current_session_id:
+                old_session = self.session_manager.get_session(self.current_session_id)
+                if old_session:
+                    old_session.output_buffer.clear()
+                    self._log("[WS] Cleared stale buffer from previous session")
+
             # Create new session
             self.current_session_id = self.session_manager.create_session(self.claude)
             await self._send_json(
                 websocket, {"type": "session", "session_id": self.current_session_id}
             )
+        elif not session_id:
+            # Claude alive but fresh connection (no session reconnection)
+            # Create new session for this client
+            self._log("[WS] Creating new session for fresh connection to existing Claude")
+            self.current_session_id = self.session_manager.create_session(self.claude)
+            await self._send_json(
+                websocket, {"type": "session", "session_id": self.current_session_id}
+            )
+
+            # Send initial banner so user sees Claude welcome screen (not blank terminal)
+            if self.initial_banner:
+                self._log(
+                    f"[WS] Sending initial banner ({len(self.initial_banner)} chars) to new session"
+                )
+                try:
+                    await self._send_json(
+                        websocket,
+                        {"type": "output", "text": self.initial_banner, "is_replay": False},
+                    )
+                except Exception as e:
+                    self._log(f"[WS] Failed to send initial banner: {e}")
+            elif self.banner_buffer:
+                # Banner not fully captured yet, but send what we have so far
+                # This prevents blank terminal on early reconnections
+                pending_banner = "".join(self.banner_buffer)
+                self._log(
+                    f"[WS] Sending pending banner ({len(pending_banner)} chars) to new session"
+                )
+                try:
+                    await self._send_json(
+                        websocket, {"type": "output", "text": pending_banner, "is_replay": False}
+                    )
+                except Exception as e:
+                    self._log(f"[WS] Failed to send pending banner: {e}")
 
         # Start flush task if not running
         if self.flush_task is None or self.flush_task.done():
@@ -237,6 +344,7 @@ class ConnectionManager:
         """Handle WebSocket disconnection"""
         self.active_connections.discard(websocket)
         self.batchers.pop(websocket, None)
+        self.replayed_websockets.discard(websocket)  # Clean up replay tracking
 
         # Clear current connection if it's the one disconnecting
         if self.current_connection == websocket:
@@ -247,18 +355,32 @@ class ConnectionManager:
             self.clipboard_manager.stop_monitoring()
             self._log("[WS] No active connections, stopping clipboard sync")
 
-        # Stop claude if no connections
+        # Phase 2 Optimization: Keep Claude alive for instant reconnections
+        # Claude process stays alive until shutdown or explicit kill
+        # This makes reconnections INSTANT (200ms vs 15s)
         if not self.active_connections and self.claude:
-            asyncio.create_task(self.claude.stop())
-            self.claude = None
-            self._log("[WS] No active connections, stopping Claude process")
+            self._log("[WS] No active connections, but keeping Claude alive for fast reconnect")
 
     async def _handle_claude_output(self, text: str):
         """Handle output from claude process"""
+        # Capture initial banner for replay on future connections
+        # Capture ALL output until user sends first input
+        if not self.banner_captured:
+            self.banner_buffer.append(text)
+            # Don't auto-complete - wait for first user input to mark as captured
+            # This ensures we capture the complete banner + initial prompt state
+
         # Add to all batchers
         for ws in list(self.active_connections):
             if ws in self.batchers:
                 self.batchers[ws].add(text)
+
+        # Store in session buffer ONLY when disconnected (optimization: don't buffer live output)
+        # Client receives output live via flush loop, no need to duplicate in buffer
+        if self.current_session_id and not self.active_connections:
+            session = self.session_manager.get_session(self.current_session_id)
+            if session:
+                session.add_output(text)
 
         # Detect Claude prompts for push notifications
         if self.prompt_detector and not self.active_connections:
@@ -330,6 +452,14 @@ class ConnectionManager:
 
     async def handle_input(self, text: str, connection_id: str):
         """Handle user input with validation and sanitization"""
+        # Mark banner as captured on first user input
+        if not self.banner_captured and self.banner_buffer:
+            self.initial_banner = "".join(self.banner_buffer)
+            self.banner_captured = True
+            self._log(
+                f"[BANNER] Captured initial banner on first user input ({len(self.initial_banner)} chars)"
+            )
+
         # Sanitize input
         sanitized = sanitize_input(text, allow_ansi=True)
 
@@ -385,6 +515,64 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
+# Lifespan context manager for startup/shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan - replaces deprecated @app.on_event"""
+    # Startup
+    logger.info("[APP] Claude-onTheGo backend starting...")
+    logger.info(f"[APP] WebSocket endpoint: ws://{Config.BACKEND_HOST}:{Config.BACKEND_PORT}/ws")
+    logger.info("")
+
+    # Phase 1 Optimization: Parse and cache theme once at startup (saves 1-3s per connection)
+    logger.info("[THEME] Parsing terminal configuration...")
+    try:
+        theme_config = parse_terminal_config()
+        manager.cached_theme = {
+            "type": "theme",
+            "colors": theme_config["colors"],
+            "font": theme_config["font"],
+            "fontSize": theme_config["fontSize"],
+        }
+        logger.info("[THEME] Theme cached successfully")
+    except Exception as e:
+        logger.info(f"[THEME] Failed to parse theme (will use client defaults): {e}")
+        manager.cached_theme = None
+
+    # Print beautiful startup banner with mDNS URL and QR code
+    print_startup_banner(frontend_port=Config.FRONTEND_PORT)
+
+    yield  # Application runs
+
+    # Shutdown
+    logger.info("[APP] Shutting down...")
+
+    # Stop claude process
+    if manager.claude:
+        await manager.claude.stop()
+
+    # Close all connections
+    for ws in list(manager.active_connections):
+        try:
+            await ws.close()
+        except Exception:
+            # Ignore errors during shutdown - websocket may already be closed
+            pass
+
+
+# Create FastAPI app with lifespan
+app = FastAPI(title="Claude-onTheGo Backend", lifespan=lifespan)
+
+# CORS with configurable origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=Config.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
+
+
 @app.get("/")
 async def root():
     """Health check endpoint"""
@@ -407,7 +595,12 @@ async def websocket_endpoint(websocket: WebSocket):
     if Config.ENABLE_AUTH:
         auth_token = websocket.query_params.get("token")
 
-    await manager.connect(websocket, auth_token=auth_token)
+    # Extract session ID for reconnection support
+    session_id = websocket.query_params.get("session_id")
+    if session_id:
+        manager._log(f"[WS ENDPOINT] Client requesting session: {session_id}")
+
+    await manager.connect(websocket, auth_token=auth_token, session_id=session_id)
 
     try:
         while True:
@@ -472,33 +665,6 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         manager._log(f"[WS] Error: {e}")
         manager.disconnect(websocket)
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Run on app startup"""
-    print("[APP] Claude-onTheGo backend starting...")
-    print(f"[APP] WebSocket endpoint: ws://{Config.BACKEND_HOST}:{Config.BACKEND_PORT}/ws")
-    print()
-    # Print beautiful startup banner with mDNS URL and QR code
-    print_startup_banner(frontend_port=Config.FRONTEND_PORT)
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Run on app shutdown"""
-    print("[APP] Shutting down...")
-
-    # Stop claude process
-    if manager.claude:
-        await manager.claude.stop()
-
-    # Close all connections
-    for ws in list(manager.active_connections):
-        try:
-            await ws.close()
-        except:
-            pass
 
 
 if __name__ == "__main__":

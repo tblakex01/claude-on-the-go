@@ -25,21 +25,30 @@
 
     <!-- PWA Meta -->
     <meta name="description" content="Access Claude Code CLI from your mobile device over WiFi">
-    <meta name="mobile-web-app-capable" content="yes"
+    <meta name="mobile-web-app-capable" content="yes">
 
     <!-- Xterm.js CSS from CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
 
     <!-- Custom styles -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
     <div id="status-bar">
-        <span id="connection-status">Connecting...</span>
+        <span id="connection-status">Initializing...</span>
         <span id="claude-status"></span>
     </div>
 
     <div id="terminal-container"></div>
+
+    <!-- Mobile Keyboard Toolbar (only visible on mobile) -->
+    <div id="keyboard-toolbar" class="keyboard-toolbar hidden">
+        <button class="key-btn" data-key="tab">Tab</button>
+        <button class="key-btn" data-key="shift-tab">⇧Tab</button>
+        <button class="key-btn" data-key="ctrl-c">^C</button>
+        <button class="key-btn" data-key="esc">Esc</button>
+        <button class="key-btn" data-key="ctrl-d">^D</button>
+    </div>
 
     <!-- PWA Install Banner -->
     <div id="install-banner" class="install-banner hidden">
@@ -54,6 +63,16 @@
         </div>
     </div>
 
+    <!-- Tap to Connect Overlay (iOS Safari WebSocket restriction workaround) -->
+    <div id="tap-to-connect" class="tap-overlay hidden">
+        <div class="tap-content">
+            <div class="tap-icon">🚀</div>
+            <h2 id="tap-title">claude-on-the-go</h2>
+            <p id="tap-message">Tap anywhere to connect</p>
+            <div id="tap-hint" class="tap-hint">iOS requires user interaction for WebSocket connections</div>
+        </div>
+    </div>
+
     <!-- Toast notifications -->
     <div id="reconnect-toast" class="toast hidden">
         <span id="reconnect-message"></span>
@@ -64,13 +83,48 @@
         <p id="loading-message">Restoring session...</p>
     </div>
 
+    <!-- Connection Failed Overlay (Circuit Breaker) -->
+    <div id="connection-failed-overlay" class="connection-failed-overlay hidden">
+        <div class="connection-failed-content">
+            <div class="failed-icon">⚠️</div>
+            <h2>Connection Failed</h2>
+            <p>Unable to connect to the server after multiple attempts.</p>
+
+            <!-- Error Diagnostics Section -->
+            <div id="error-diagnostics" class="error-diagnostics">
+                <div class="diagnostic-item">
+                    <strong>Error:</strong> <span id="diag-error"></span>
+                </div>
+                <div class="diagnostic-item">
+                    <strong>URL:</strong> <span id="diag-url"></span>
+                </div>
+                <div class="diagnostic-item">
+                    <strong>Status:</strong> <span id="diag-status"></span>
+                </div>
+            </div>
+
+            <div class="failed-hint">
+                <div id="diag-hints"></div>
+            </div>
+
+            <div class="failed-actions">
+                <button id="retry-connection-btn" class="retry-btn" onclick="window.claudeTerminal.resetCircuitBreaker()">
+                    Retry Connection
+                </button>
+                <button id="copy-diagnostics-btn" class="secondary-btn" onclick="window.claudeTerminal.copyDiagnostics()">
+                    Copy Diagnostics
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Xterm.js library from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.9.0/lib/xterm-addon-web-links.js"></script>
 
     <!-- Terminal WebSocket client -->
-    <script src="terminal.js"></script>
+    <script src="terminal.js?v=3"></script>
 
     <!-- PWA Service Worker Registration -->
     <script>

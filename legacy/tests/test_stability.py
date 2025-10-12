@@ -10,6 +10,7 @@ import time
 from typing import Dict, List
 
 import psutil
+import pytest
 import websockets
 
 
@@ -121,6 +122,7 @@ class StabilityMetrics:
         return max(0, min(100, score))
 
 
+@pytest.mark.slow
 async def test_60_minute_session(backend_url: str = "ws://localhost:8000/ws"):
     """
     Run a 60-minute stability test

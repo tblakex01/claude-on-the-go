@@ -1,0 +1,23 @@
+# Bandit security scanner configuration
+# https://bandit.readthedocs.io/en/latest/config.html
+
+# Exclude paths that don't need scanning
+exclude_dirs:
+  - /tests/
+  - /venv/
+  - /.venv/
+  - /node_modules/
+  - /__pycache__/
+
+# Skip specific test IDs
+# B104: Possible binding to all interfaces (0.0.0.0) - We now handle this with nosec comments
+#       where 0.0.0.0 is intentionally used via environment variable override
+skips:
+  []
+
+# Tests to run (empty = all tests)
+tests: []
+
+# Confidence level (LOW, MEDIUM, HIGH)
+# Only report findings with at least MEDIUM confidence
+confidence: MEDIUM

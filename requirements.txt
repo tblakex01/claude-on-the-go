@@ -15,9 +15,13 @@ pbr>=2.0.0  # Required by bandit
 
 # Testing
 pytest==8.4.2
-pytest-asyncio==1.2.0
+pytest-asyncio==0.25.0  # Updated for Python 3.13 compatibility
+pytest-timeout==2.3.1  # Enable test timeout configuration
 websockets==15.0.1
 psutil==5.9.6
+selenium==4.27.1  # Chrome DevTools Protocol for E2E testing
+webdriver-manager==4.0.2  # Automatic ChromeDriver management
+Pillow==11.1.0  # Screenshot manipulation
 
 # Type stubs for mypy
 types-pexpect>=4.9.0

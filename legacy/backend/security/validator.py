@@ -39,6 +39,9 @@ def validate_message(message: Dict[str, Any]) -> Tuple[bool, str]:
         return _validate_input_message(message)
     elif msg_type == "resize":
         return _validate_resize_message(message)
+    elif msg_type == "pong":
+        # Heartbeat response from client - no validation needed
+        return True, ""
     else:
         return False, f"Unknown message type: {msg_type}"
 

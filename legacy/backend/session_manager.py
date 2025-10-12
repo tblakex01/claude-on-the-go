@@ -4,10 +4,13 @@ Manages persistent sessions that survive disconnections
 """
 
 import asyncio
+import logging
 import time
 import uuid
 from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -21,6 +24,8 @@ class Session:
     rows: int
     cols: int
     claude_wrapper: any  # ClaudeWrapper instance
+    output_buffer: list  # List of output strings for replay
+    max_buffer_size: int = 500_000  # 500KB max buffer size
 
     def is_expired(self, timeout: int = 3600) -> bool:
         """Check if session has expired (default: 1 hour)"""
@@ -33,6 +38,23 @@ class Session:
     def age_seconds(self) -> float:
         """Get session age in seconds"""
         return time.time() - self.created_at
+
+    def add_output(self, text: str):
+        """Add output to buffer with size limit"""
+        self.output_buffer.append(text)
+        # Trim oldest output if buffer exceeds size limit
+        total_size = sum(len(s) for s in self.output_buffer)
+        while total_size > self.max_buffer_size and len(self.output_buffer) > 1:
+            removed = self.output_buffer.pop(0)
+            total_size -= len(removed)
+
+    def get_buffered_output(self) -> str:
+        """Get all buffered output as single string"""
+        return "".join(self.output_buffer)
+
+    def get_buffer_size(self) -> int:
+        """Get current buffer size in bytes"""
+        return sum(len(s) for s in self.output_buffer)
 
 
 class SessionManager:
@@ -71,10 +93,11 @@ class SessionManager:
             rows=rows,
             cols=cols,
             claude_wrapper=claude_wrapper,
+            output_buffer=[],
         )
 
         self.sessions[session_id] = session
-        print(f"[SESSION] Created session {session_id} (PID: {session.pid})")
+        logger.info(f"[SESSION] Created session {session_id} (PID: {session.pid})")
 
         return session_id
 
@@ -95,13 +118,15 @@ class SessionManager:
 
         # Check if expired
         if session.is_expired(self.session_timeout):
-            print(f"[SESSION] Session {session_id} expired")
+            logger.info(f"[SESSION] Session {session_id} expired")
             self.destroy_session(session_id)
             return None
 
         # Touch to update activity
         session.touch()
-        print(f"[SESSION] Reconnected to session {session_id} (age: {session.age_seconds():.0f}s)")
+        logger.info(
+            f"[SESSION] Reconnected to session {session_id} (age: {session.age_seconds():.0f}s)"
+        )
 
         return session
 
@@ -122,7 +147,7 @@ class SessionManager:
             asyncio.create_task(session.claude_wrapper.stop())
 
         del self.sessions[session_id]
-        print(f"[SESSION] Destroyed session {session_id}")
+        logger.info(f"[SESSION] Destroyed session {session_id}")
 
     def list_sessions(self) -> Dict[str, dict]:
         """
@@ -157,17 +182,17 @@ class SessionManager:
                 ]
 
                 for sid in expired:
-                    print(f"[SESSION] Cleaning up expired session {sid}")
+                    logger.info(f"[SESSION] Cleaning up expired session {sid}")
                     self.destroy_session(sid)
 
             except Exception as e:
-                print(f"[SESSION] Cleanup error: {e}")
+                logger.info(f"[SESSION] Cleanup error: {e}")
 
     async def start_cleanup_task(self):
         """Start background cleanup task"""
         if self.cleanup_task is None or self.cleanup_task.done():
             self.cleanup_task = asyncio.create_task(self.cleanup_expired_sessions())
-            print("[SESSION] Started session cleanup task")
+            logger.info("[SESSION] Started session cleanup task")
 
     async def stop_cleanup_task(self):
         """Stop background cleanup task"""
@@ -177,7 +202,7 @@ class SessionManager:
                 await self.cleanup_task
             except asyncio.CancelledError:
                 pass
-            print("[SESSION] Stopped session cleanup task")
+            logger.info("[SESSION] Stopped session cleanup task")
 
     def get_session_count(self) -> int:
         """Get count of active sessions"""
