@@ -8,10 +8,13 @@ PyYAML==6.0.1
 pydantic-settings==2.11.0
 httpx==0.27.0  # For push notifications (Pushover, ntfy, Telegram)
 
+# Build dependencies
+packaging>=24.0  # Required by twine and modern build tools
+setuptools<81    # Suppress pkg_resources deprecation warnings until ecosystem migrates
+
 # Security Tools
-safety==2.3.5
-bandit==1.8.6
-pbr>=2.0.0  # Required by bandit
+bandit==1.8.6    # Static security analysis
+pbr>=2.0.0       # Required by bandit
 
 # Testing
 pytest==8.4.2
