@@ -110,6 +110,7 @@ def serve(port=8001, host=None):
 
     # Change to frontend directory
     frontend_dir = Path(__file__).parent
+    os.chdir(frontend_dir)  # Actually change to the directory!
     socketserver.TCPServer.allow_reuse_address = True
 
     with socketserver.TCPServer((host, port), SecureHTTPRequestHandler) as httpd:

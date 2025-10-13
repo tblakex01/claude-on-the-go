@@ -1,4 +1,4 @@
-# Claude-on-the-go
+# claude-on-the-go
 
 [![CI](https://github.com/MatthewJamisonJS/claude-on-the-go/actions/workflows/ci.yml/badge.svg)](https://github.com/MatthewJamisonJS/claude-on-the-go/actions/workflows/ci.yml)
 [![Security](https://img.shields.io/badge/security-actively%20maintained-brightgreen)]()
@@ -8,310 +8,372 @@
 
 Use Claude on your iPhone, Android, or any device with a browser - while your Mac does the heavy lifting. No cloud sync, no data leaks, just your local network keeping things fast and private.
 
-## 🆕 Latest Improvements (v1.2)
+## Table of Contents
 
-Three major features just landed to make your mobile Claude experience even better:
+- [Quick Start](#quick-start)
+  - [Local WiFi (Same Network)](#local-wifi-same-network)
+  - [Remote Access (Anywhere)](#remote-access-anywhere)
+- [SSH + Terminal Access](#ssh--terminal-access)
+  - [Why SSH?](#why-ssh)
+  - [Connection Options](#connection-options)
+- [What's New in v1.3](#whats-new-in-v13)
+- [Requirements](#requirements)
+- [Features](#features)
+- [Configuration](#configuration)
+- [Troubleshooting](#troubleshooting)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
 
-## 🆙 Upgrading to v1.2
+## Quick Start
 
-Already have claude-on-the-go? Update to get the latest fixes:
-
-```bash
-cd claude-on-the-go
-git pull origin main
-./install.sh  # Reinstall dependencies (handles any new requirements)
-```
-
-That's it! Restart with `./start.sh` to enjoy the new features.
-
----
-
-**📲 Progressive Web App (PWA)**
-- Install directly to your home screen like a native app
-- Works offline with intelligent caching
-- Full-screen experience without browser chrome
-- See [docs/PWA_IMPLEMENTATION.md](docs/PWA_IMPLEMENTATION.md) for details
-
-**🚀 Seamless Mobile Reconnection**
-- Beautiful rocket launch screen during reconnection
-- Progressive status messages: "Launching..." → "Starting Claude..." → Error detection
-- No more black screen bugs - overlay stays visible until Claude responds
-- 15-second timeout with helpful error messages
-- Video-verified smooth reconnection on iPhone Safari
-
-**📦 Easy Installation**
-- Now available via pip: `pip install claude-on-the-go`
-- Complete CLI with commands: start, stop, status, logs, qr
-- Professional packaging with all dependencies included
-- See [docs/INSTALLATION.md](docs/INSTALLATION.md) for all install options
-
----
-
-
-
-## 📱 What Is This?
-
-claude-on-the-go lets you use the [Claude Code CLI](https://claude.ai/download) from your mobile device. Your Mac runs the `claude` process, and your phone displays the terminal over WiFi.
-
-**Perfect for:**
-- 🛏️ Coding from bed without lugging your laptop
-- ⚡ Quick fixes while away from your desk
-- 🎉 Showing off Claude to friends on your phone
-- 🎨 Actually using that sweet terminal theme you spent hours configuring😅
-
----
-
-## 🚀 Quick Start
-
-### ⚙️ One-Command Installation
+### Local WiFi (Same Network)
 
 ```bash
 git clone https://github.com/MatthewJamisonJS/claude-on-the-go.git
 cd claude-on-the-go
 ./install.sh
-```
-
-The installer will:
-- ✅ Check for Python 3 and Claude CLI
-- 📦 Create a virtual environment
-- 🔌 Install dependencies
-- 🔒 Run security checks
-- ⚙️ Create configuration file
-
-### 🎬 Launch
-
-```bash
 ./start.sh
 ```
 
-📲 You'll see a beautiful QR code - scan it with your phone's camera and you're connected!
+📲 Scan the QR code with your phone → instant access!
 
-## 📋 Requirements
+### Remote Access (Anywhere)
 
-**🖥️ Mac/Linux:**
-- 🐍 Python 3.8+
-- 🤖 [Claude Code CLI](https://claude.ai/download) installed
-- 📡 Same WiFi network for Mac and phone
+**Two approaches:** Access via browser UI or direct SSH terminal
 
-**📱 Mobile Device:**
-- 🌐 Any modern browser (Safari, Chrome, Firefox, etc.)
-- 📡 Same WiFi network as your Mac
+**Option 1: Browser UI (WebSocket)**
+- Use VPN (Tailscale, ZeroTier, etc.) or port forwarding
+- See [Remote Access Setup](docs/REMOTE_ACCESS.md) for detailed VPN configuration
+- Run `./start.sh` on Mac, access from phone browser
 
-## ✨ Features
+**Option 2: SSH Terminal (Recommended for CLI users)**
+- Direct access to Claude CLI, no server needed
+- Connect via SSH, run `claude` commands directly
+- See [SSH + Terminal Access](#ssh--terminal-access) below for setup options
 
-### 🔒 Security First
-- 🚦 Rate limiting to prevent DoS attacks (10 msg/sec, 100KB/sec)
-- ✅ Input validation and sanitization
-- 🛡️ Content Security Policy (CSP) headers
-- 🔐 Log redaction for sensitive data
-- 🎫 Optional token authentication
-- 🚫 No hardcoded IPs or ports
+**Quick example using Tailscale + SSH:**
+```bash
+# One-time: Install VPN and enable SSH on Mac
+./scripts/tailscale-setup.sh
 
-### 💾 Session Persistence
-- 🔄 Sessions survive disconnections and reconnect seamlessly
-- 🆔 UUID-based session IDs with 1-hour timeout
-- 🧹 Automatic session cleanup
-- ⏮️ Resume coding exactly where you left off
-
-### 📋 Bidirectional Clipboard Sync
-- 🖥️→📱 Copy on Mac → automatically syncs to phone
-- 📱→🖥️ Copy on phone → automatically syncs to Mac
-- ⚡ Configurable sync interval (default 1 second)
-- 🔄 Content hashing prevents sync loops
-- ⚙️ Can be disabled via config
-
-### 🖥️ Universal Terminal Support
-
-Fully implemented parsers:
-- **✅ Ghostty** - Complete theme and font parsing
-- **✅ iTerm2** - Binary plist with RGB color extraction
-- **✅ Alacritty** - YAML config with multiple file support
-- **✅ Kitty** - Key-value config with include directives
-- **✅ Terminal.app** - NSColor/NSFont parsing (best-effort)
-
-Partial support (default theme fallback):
-- ⏳ Warp
-- ⏳ Hyper
-- ⏳ Windows Terminal
-
-🎨 Can't find your terminal? Uses a clean default theme.
-
-### 📱 Mobile Optimized
-- 📐 Responsive terminal sizing
-- 📲 iOS safe area support (handles notch/home indicator)
-- 🌊 Smooth scrolling with momentum
-- ⌨️ Keyboard-aware layout
-- 🌍 Works on ANY phone browser
-- 📋 Real-time clipboard sync with your Mac
-
-### 🏭 Production Ready
-- ⏱️ 60-minute stability testing with live metrics
-- 🔍 Memory leak detection and monitoring
-- 📊 CPU and latency tracking
-- 🚨 Error rate monitoring
-- 📈 Stability scoring (90+/100 passing criteria)
-
-## How It Works
-
-```
-┌─────────────────┐         WiFi         ┌─────────────────┐
-│  Your iPhone    │◄──────────────────────│  Your Mac       │
-│                 │                       │                 │
-│  [Safari/Chrome]│    WebSocket (8000)   │  Claude Process │
-│  Frontend (8001)│◄──────────────────────│  Backend (8000) │
-│                 │                       │                 │
-│  xterm.js       │                       │  pexpect + PTY  │
-│  renders        │                       │  controls       │
-│  terminal       │                       │  claude CLI     │
-└─────────────────┘                       └─────────────────┘
+# From phone terminal (Termius, Blink Shell, iSH)
+ssh your-username@your-tailscale-ip
+claude "help me refactor this code"
 ```
 
-1. **Backend** (Python + FastAPI) spawns `claude` CLI
-2. **Frontend** (HTML + xterm.js) renders terminal
-3. **WebSocket** streams I/O between them
-4. **mDNS** lets you use `.local` domains (no IP addresses!)
+📖 **Comprehensive guides:** [Remote Access Setup](docs/REMOTE_ACCESS.md) | [SSH Authentication](docs/TAILSCALE_SSH_CLAUDE.md)
 
-## Project Structure
+## SSH + Terminal Access
 
-- `legacy/` - v1.0 architecture (frozen, maintained for compatibility)
-- `core/` - Business logic (PTY manager, session store, config)
-- `server/` - FastAPI WebSocket + REST API
-- `client/` - Modern web client + PWA
-- `integrations/` - Notifications, Tailscale, QR codes
-- `cli/` - Command-line interface
+### Why SSH?
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed documentation.
+SSH gives you **direct access** to Claude CLI on your Mac - no WebSocket server, no browser, just the real `claude` command.
+
+**Benefits:**
+- ✅ **Fastest workflow:** `ssh → claude "your prompt"` (2 commands, done)
+- ✅ **Works anywhere:** Same WiFi, cellular, coffee shop, airport
+- ✅ **Native experience:** Real terminal, not browser emulation
+- ✅ **Zero overhead:** No server to start, no port conflicts
+- ✅ **Better for CLI users:** Full terminal features (tmux, vim, etc.)
+
+**When to use:**
+- Quick commands and interactions
+- You're comfortable with terminal apps
+- Want the absolute fastest access
+- Remote access without starting a server
+
+**When to use Browser UI instead:**
+- Prefer visual interface over terminal
+- Need rich formatting/styling
+- Want to use from desktop browser
+- Demo/presentation purposes
+
+### Connection Options
+
+Choose the method that fits your use case:
+
+#### Option A: Local Network SSH (Simplest)
+
+Connect directly via WiFi when you're home.
+
+**Requirements:**
+- Mac and phone on same WiFi network
+- SSH enabled on Mac: `sudo systemsetup -setremotelogin on`
+- Terminal app on phone (Termius, Blink Shell, iSH)
+
+**Steps:**
+```bash
+# 1. Find your Mac's IP (on Mac)
+ifconfig | grep "inet " | grep -v 127.0.0.1
+# Example output: inet 192.168.1.100
+
+# 2. Connect from phone terminal
+ssh your-username@192.168.1.100
+
+# 3. Use Claude
+claude "help me debug this Python code"
+```
+
+**Pros:** Zero setup, instant, no external services
+**Cons:** Same WiFi only, IP changes on network switch
+
+---
+
+#### Option B: VPN (Recommended for Remote Access)
+
+Create a private network that works anywhere with internet.
+
+**VPN Options:**
+
+| Solution | Setup Time | Cost | Best For |
+|----------|------------|------|----------|
+| **Tailscale** | 5 min | Free | Beginners, easiest setup |
+| **ZeroTier** | 10 min | Free | Alternative to Tailscale |
+| **WireGuard** | 30+ min | Free | DIY, full control |
+| **Headscale** | 60+ min | Free | Self-hosted Tailscale |
+
+**Example: Using Tailscale**
+
+**One-time setup:**
+```bash
+# On Mac: Install and configure
+./scripts/tailscale-setup.sh  # Automated script
+# OR manual: https://tailscale.com/download/mac
+
+# On phone: Install Tailscale app from App Store/Play Store
+# Log in with same account as Mac
+```
+
+**Daily use:**
+```bash
+# From phone terminal (Termius, Blink Shell, etc.)
+ssh your-username@100.101.102.103  # Your Mac's VPN IP
+claude "write a function to parse JSON"
+```
+
+**Pros:** Works anywhere, survives network changes, encrypted
+**Cons:** Requires VPN app, slight latency increase (20-50ms)
+
+**Other VPN solutions work similarly:**
+- ZeroTier: Create network at https://my.zerotier.com
+- WireGuard: Configure peers manually
+- Headscale: Self-hosted Tailscale coordinator
+
+📖 **Detailed VPN setup:** [Remote Access Guide](docs/REMOTE_ACCESS.md)
+📖 **SSH authentication:** [Tailscale SSH Claude](docs/TAILSCALE_SSH_CLAUDE.md)
+
+---
+
+#### Option C: Port Forwarding (Advanced Users)
+
+Expose SSH through your router to the internet.
+
+**Requirements:**
+- Router admin access
+- Static/dynamic DNS (DuckDNS, No-IP, afraid.org)
+- Understanding of security implications
+
+**Steps:**
+1. Configure router port forwarding: External 22 → Mac internal IP port 22
+2. Set up dynamic DNS (if no static IP)
+3. Harden SSH security (`/etc/ssh/sshd_config`)
+4. Connect from anywhere: `ssh user@your-domain.duckdns.org`
+
+**Security considerations:**
+- ⚠️ Exposed to internet (SSH attacks common)
+- ✅ Use SSH keys only, disable password auth
+- ✅ Change default SSH port (22 → 2222)
+- ✅ Use fail2ban to block brute force attempts
+- ✅ Consider Cloudflare Tunnel as alternative
+
+**Pros:** No third-party VPN service, full control
+**Cons:** Security responsibility, complex setup, port conflicts
+
+**Alternative: Temporary tunnels**
+```bash
+# ngrok (quick testing, not for production)
+brew install ngrok
+ngrok tcp 22
+# Gives you: tcp://0.tcp.ngrok.io:12345
+
+# Cloudflare Tunnel (better for long-term)
+brew install cloudflared
+cloudflared tunnel create claude-ssh
+```
+
+---
+
+### Comparison Table
+
+| Method | Setup Time | Works Remote | Latency | Security | Best For |
+|--------|------------|--------------|---------|----------|----------|
+| **Local SSH** | 30 sec | ❌ WiFi only | 5-10ms | Excellent | At home |
+| **VPN (Tailscale)** | 5 min | ✅ Anywhere | 20-50ms | Excellent | Most users |
+| **Port Forward** | 30+ min | ✅ Anywhere | 10-30ms | DIY | Power users |
+| **Tunnel (ngrok)** | 2 min | ✅ Anywhere | 50-100ms | Good | Testing only |
+
+### Terminal Apps
+
+**iOS:**
+- [**Termius**](https://termius.com/) - Free tier, beautiful UI, SSH key management
+- [**Blink Shell**](https://blink.sh/) - $20/year, mosh support, best for developers
+- [**iSH**](https://ish.app/) - Free, full Linux environment, Alpine-based
+
+**Android:**
+- [**Termux**](https://termux.com/) - Free, powerful Linux terminal, package manager
+- [**JuiceSSH**](https://juicessh.com/) - Free, SSH-focused, port forwarding
+- [**Termius**](https://termius.com/) - Cross-platform, sync across devices
+
+### Quick Tips
+
+**Skip password entry (SSH keys):**
+```bash
+# On phone terminal
+ssh-keygen -t ed25519
+ssh-copy-id user@your-mac-ip
+# Now SSH works without password
+```
+
+**Use hostname instead of IP (mDNS):**
+```bash
+# Instead of: ssh user@192.168.1.100
+ssh your-username@your-macbook.local
+# Example: ssh john@Johns-MacBook-Pro.local
+# Works on local networks automatically
+```
+
+**Keep connection alive:**
+```bash
+# Add to ~/.ssh/config on phone
+Host *
+  ServerAliveInterval 60
+  ServerAliveCountMax 10
+```
+
+**For unstable connections (trains, planes):**
+```bash
+# Use mosh instead of SSH
+brew install mosh  # On Mac
+mosh user@your-ip  # From phone (Blink Shell includes mosh)
+# Survives network changes, instant local echo
+```
+
+## What's New in v1.3
+
+**SSH + Terminal Access:** Direct CLI access to Claude Code via SSH - no WebSocket server needed. Choose from multiple connection methods:
+- Local SSH (same WiFi, instant)
+- VPN solutions (Tailscale, ZeroTier, WireGuard)
+- Port forwarding (advanced users)
+
+**Access Methods Comparison:**
+- **Browser UI** (local): 5-15ms latency, visual interface, same WiFi only
+- **SSH Terminal** (remote): 20-50ms latency, works anywhere, CLI-first workflow
+
+Use browser UI for visual experience at home. Use SSH + terminal for CLI workflow anywhere. Both methods are fully supported.
+
+## Requirements
+
+**Mac/Linux:**
+- Python 3.9+
+- [Claude Code CLI](https://claude.ai/download) installed
+- Same WiFi network for Mac and phone (local access only)
+
+**Mobile Device:**
+- Any modern browser (Safari, Chrome, Firefox) for local access
+- OR terminal app ([Blink Shell](https://blink.sh/), [Termius](https://termius.com/), [iSH](https://ish.app/)) for remote access
+
+## Features
+
+- ✅ **Security**: Rate limiting, auth tokens, input validation, CSP headers
+- ✅ **Session Persistence**: Reconnect seamlessly, sessions survive disconnections
+- ✅ **Clipboard Sync**: Bidirectional sync between Mac and phone
+- ✅ **Terminal Themes**: Auto-detects Ghostty, iTerm2, Alacritty, Kitty, Terminal.app
+- ✅ **Mobile Optimized**: iOS safe areas, responsive sizing, keyboard-aware
+- ✅ **Remote Access**: SSH + VPN (multiple options) or port forwarding for anywhere connectivity
+- ✅ **Production Ready**: 60-min stability testing, memory leak detection
+
+📖 **Detailed features:** [FEATURES.md](FEATURES.md)
 
 ## Configuration
 
 Edit `.env` to customize (all optional):
 
 ```bash
-# Security
-ENABLE_AUTH=true                # Require token authentication
-AUTH_TOKEN=your-secret-token    # Set your auth token
-
-# Network
+# Network (for remote browser UI access)
+HOST=100.101.102.103            # Your VPN IP (secure) or localhost (local only)
 BACKEND_PORT=8000               # Backend WebSocket port
 FRONTEND_PORT=8001              # Frontend HTTP port
+ALLOWED_ORIGINS=http://100.101.102.103:8001,http://localhost:8001  # VPN + local
 
-# Rate Limiting
-RATE_LIMIT_MESSAGES=10          # Max messages per second
-RATE_LIMIT_BYTES=100000         # Max bytes per second
-
-# Logging
-LOG_LEVEL=INFO                  # DEBUG, INFO, WARNING, ERROR
-LOG_REDACTION=true              # Redact IPs/tokens from logs
+# Security
+ENABLE_AUTH=false               # Require token authentication
+AUTH_TOKEN=your-secret-token    # Set your auth token
 
 # Features
 ENABLE_CLIPBOARD_SYNC=true      # Enable clipboard synchronization
 CLIPBOARD_SYNC_INTERVAL=1.0     # Clipboard check interval (seconds)
+
+# Logging
+LOG_LEVEL=INFO                  # DEBUG, INFO, WARNING, ERROR
+LOG_REDACTION=true              # Redact IPs/tokens from logs
 ```
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
-### ❌ "Claude CLI not found"
+### Claude CLI Not Found
+📥 Install from [https://claude.ai/download](https://claude.ai/download)
 
-📥 Install it from [https://claude.ai/download](https://claude.ai/download)
+### Can't Connect from Phone (Local WiFi)
+- Ensure you're on the same WiFi network
+- Try the direct IP URL instead of `.local`
+- Check Mac firewall settings (allow Python)
 
-### 🚫 "Can't connect from phone"
-
-1. ✅ Make sure you're on the same WiFi network
-2. 🔗 Try the direct IP URL instead of `.local`
-3. 🔥 Check firewall settings on your Mac
-
-### 🎨 "Terminal looks weird"
-
-🔍 Your terminal config wasn't detected. To add support:
-1. 📖 Check `docs/ADDING_TERMINALS.md`
-2. 🎯 Or just use the default theme (it's pretty good!)
-
-### ⚠️ "Connection keeps dropping"
-
-📝 Check `backend.log` and `frontend.log` for errors:
-
+### Browser UI Not Loading (Remote Access)
 ```bash
-tail -f backend.log
-tail -f frontend.log
+# Check configuration
+cat .env | grep -E "HOST|ALLOWED_ORIGINS"
+
+# Should show (with your actual VPN IP):
+# HOST=100.101.102.103
+# ALLOWED_ORIGINS=http://100.101.102.103:8001,...
+
+# If missing, add them (example using Tailscale):
+VPN_IP=$(tailscale ip -4)  # Or get from your VPN solution
+echo "HOST=$VPN_IP" >> .env
+echo "ALLOWED_ORIGINS=http://$VPN_IP:8001,http://localhost:8001" >> .env
+./stop.sh && ./start.sh
 ```
+
+📖 **More troubleshooting:** [Remote Access Guide](docs/REMOTE_ACCESS.md#troubleshooting)
 
 ## Documentation
 
-- `docs/SECURITY.md` - Security policy and best practices
-- `docs/ADDING_TERMINALS.md` - How to add new terminal parsers
-- `docs/LESSONS_LEARNED.md` - Technical deep dive
-
-## Architecture Highlights
-
-**Backend:**
-- FastAPI with native WebSockets
-- Pexpect for PTY control
-- Watermark flow control (pause at 100KB, resume at 10KB)
-- Message batching (30ms window)
-- Single-user mode (auto-closes old connections)
-- Session persistence with UUID-based IDs
-- Clipboard monitoring with change detection (pbcopy/pbpaste)
-
-**Frontend:**
-- Xterm.js 5.3+
-- DOM renderer on mobile (better ANSI support)
-- Canvas renderer on desktop (better performance)
-- Exponential backoff reconnection (1s→30s with jitter)
-- Auto-reconnects to existing sessions
-
-**Security:**
-- Token bucket rate limiting (10 msg/sec, 100KB/sec)
-- Input size limits (10KB per message)
-- Terminal size validation (1-500 rows/cols)
-- CSP, X-Frame-Options, X-XSS-Protection headers
-- Constant-time auth token comparison
-- Log redaction for IPs, tokens, emails
-
-**Terminal Parsers:**
-- Ghostty: Key-value config parsing
-- iTerm2: Binary plist with RGB float conversion
-- Alacritty: YAML config with multi-file support
-- Kitty: Key-value with include directives
-- Terminal.app: NSColor/NSFont heuristic parsing
+- **[SSH + Terminal Access](#ssh--terminal-access)** - Direct CLI access guide (this page)
+- **[Remote Access Guide](docs/REMOTE_ACCESS.md)** - VPN setup and browser UI configuration
+- **[SSH Authentication](docs/TAILSCALE_SSH_CLAUDE.md)** - Claude auth over SSH/Tailscale
+- **[Features](FEATURES.md)** - Comprehensive feature documentation
+- **[Security Policy](docs/SECURITY.md)** - Security best practices
+- **[Architecture](ARCHITECTURE.md)** - Technical architecture details
+- **[Adding Terminals](docs/ADDING_TERMINALS.md)** - How to add terminal parser support
 
 ## Contributing
 
-PRs welcome! Especially for:
+Contributions welcome! Especially:
 - New terminal parsers (see `docs/ADDING_TERMINALS.md`)
-- Bug fixes
-- Documentation improvements
+- Bug fixes and documentation improvements
 - Performance optimizations
 
-Please read `SECURITY.md` before contributing.
-
-## Code of Conduct
-
-We are committed to providing a welcoming and inclusive environment. Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing. All community members are expected to abide by these guidelines.
-
-To report violations, please see the reporting instructions in the Code of Conduct.
+Please read [SECURITY.md](SECURITY.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before contributing.
 
 ## License
 
-MIT License - see `LICENSE` file
+MIT License - see [LICENSE](LICENSE) file
 
-Built for vibecoders who want Claude in their pocket.
-
-## Acknowledgments
-
-- [Anthropic](https://anthropic.com) for Claude
-- [xterm.js](https://xtermjs.org/) for terminal emulation
-- [FastAPI](https://fastapi.tiangolo.com/) for the web framework
+Built for developers who want Claude in their pocket without compromising on security or control.
 
 ---
 
-## Questions or Issues?
+**Questions?** [Open an issue](https://github.com/MatthewJamisonJS/claude-on-the-go/issues)
 
-**Found a bug or have a question?**
-Open an issue: https://github.com/MatthewJamisonJS/claude-on-the-go/issues
-
-**Security concern?**
-Report privately: https://github.com/MatthewJamisonJS/claude-on-the-go/security/advisories/new
-(This creates a private report that only maintainers can see)
-
-**Want to add a terminal parser?**
-Check out: `docs/ADDING_TERMINALS.md`
+**Security concern?** [Report privately](https://github.com/MatthewJamisonJS/claude-on-the-go/security/advisories/new)

@@ -306,7 +306,7 @@ def main():
         epilog="For more information: https://github.com/MatthewJamisonJS/claude-on-the-go",
     )
 
-    parser.add_argument("--version", action="version", version="%(prog)s 1.0.0")
+    parser.add_argument("--version", action="version", version="%(prog)s 1.3.0")
 
     subparsers = parser.add_subparsers(dest="command", help="Commands")
 
