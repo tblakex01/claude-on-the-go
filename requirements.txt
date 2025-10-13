@@ -6,7 +6,7 @@ pexpect==4.9.0
 qrcode[pil]==8.2
 PyYAML==6.0.1
 pydantic-settings==2.11.0
-httpx==0.27.0  # For push notifications (Pushover, ntfy, Telegram)
+httpx==0.28.1  # For push notifications (Pushover, ntfy, Telegram)
 
 # Build dependencies
 packaging>=24.0  # Required by twine and modern build tools
