@@ -201,18 +201,18 @@ We welcome community contributions for terminal theme parsers! Currently we have
 
 ### Why We Need Your Help
 
-This is a **bootstrapped solo project** built by a developer supporting his family. I can't pay for contributions yet, but I want to be transparent about where we are:
+This is a **free and open source project** built for the community. We believe great tools should be accessible to everyone.
 
-**Current status:**
-- Building toward first revenue (mobile app launch)
-- Every feature brings us closer to sustainability
-- When profitable, I'll revisit contributor rewards
+**Our commitment:**
+- Free forever - no paid tiers or premium features
+- Community-driven development
+- Open source first, always
 
 **What you get:**
 - Your name in CONTRIBUTORS.md and release notes
 - Credit as original author for your terminal
 - First-class support for your terminal of choice
-- Satisfaction of helping a bootstrapped open-source project
+- Satisfaction of helping a free, community-driven project
 
 ### Available Parsers (7 total)
 
@@ -296,8 +296,8 @@ See `docs/ADDING_TERMINALS.md` for detailed implementation guide.
 ### After Merge
 
 - Your contribution will be credited in release notes
-- Bounties will be paid within 7 days
 - You'll be added to contributors list
+- Your work will benefit the entire community
 
 ## Community Guidelines
 

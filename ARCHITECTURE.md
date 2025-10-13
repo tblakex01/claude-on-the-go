@@ -897,7 +897,7 @@ ws://claude-mac:8000/ws
 - [ ] Multi-user mode (team collaboration)
 - [ ] End-to-end encryption (zero-trust)
 - [ ] Plugin system (custom integrations)
-- [ ] Cloud sync (optional, paid tier)
+- [ ] Cloud sync (optional)
 
 ---
 
