@@ -24,7 +24,7 @@ websockets==15.0.1
 psutil==7.1.0
 selenium==4.27.1  # Chrome DevTools Protocol for E2E testing
 webdriver-manager==4.0.2  # Automatic ChromeDriver management
-Pillow==11.1.0  # Screenshot manipulation
+Pillow==11.3.0  # Screenshot manipulation
 
 # Type stubs for mypy
 types-pexpect>=4.9.0
