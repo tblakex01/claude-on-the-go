@@ -21,7 +21,7 @@ pytest==8.4.2
 pytest-asyncio==1.2.0  # Updated for Python 3.13 compatibility
 pytest-timeout==2.4.0  # Enable test timeout configuration
 websockets==15.0.1
-psutil==5.9.6
+psutil==7.1.0
 selenium==4.27.1  # Chrome DevTools Protocol for E2E testing
 webdriver-manager==4.0.2  # Automatic ChromeDriver management
 Pillow==11.1.0  # Screenshot manipulation
