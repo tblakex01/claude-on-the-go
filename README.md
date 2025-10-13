@@ -284,6 +284,12 @@ PRs welcome! Especially for:
 
 Please read `SECURITY.md` before contributing.
 
+## Code of Conduct
+
+We are committed to providing a welcoming and inclusive environment. Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing. All community members are expected to abide by these guidelines.
+
+To report violations, please see the reporting instructions in the Code of Conduct.
+
 ## License
 
 MIT License - see `LICENSE` file

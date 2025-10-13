@@ -301,7 +301,7 @@ See `docs/ADDING_TERMINALS.md` for detailed implementation guide.
 
 ## Community Guidelines
 
-We are committed to providing a welcoming and inclusive environment.
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating. We are committed to providing a welcoming and inclusive environment for all contributors.
 
 ### Expected Behavior
 
@@ -327,8 +327,7 @@ If you experience or witness unacceptable behavior, please report it to the proj
 **Do not report security vulnerabilities through public GitHub issues.**
 
 Instead, please report them privately:
-- Email: [security contact - add your email]
-- GitHub Security Advisory: Use "Report a vulnerability" button
+- Report via GitHub Security Advisories (https://github.com/MatthewJamisonJS/claude-on-the-go/security/advisories/new) or by contacting maintainers through GitHub
 
 We'll respond within 48 hours and work with you to resolve the issue.
 
